@@ -31,7 +31,8 @@ export function LoginForm({
           value={formData.email}
           onChange={handleChange}
           placeholder="Email*"
-          className="mt-2 w-full rounded-lg border border-gray-200 bg-[rgb(242,247,250)] p-3 text-sm outline-none transition focus:border-[rgb(34,44,49)] focus:ring-1 focus:ring-[rgb(34,44,49)]"
+          variant="auth"
+          className="mt-2"
         />
 
         <Input
@@ -40,7 +41,8 @@ export function LoginForm({
           value={formData.parola}
           onChange={handleChange}
           placeholder="Parola*"
-          className="mt-2 w-full rounded-lg border border-gray-200 bg-[rgb(242,247,250)] p-3 text-sm outline-none transition focus:border-[rgb(34,44,49)] focus:ring-1 focus:ring-[rgb(34,44,49)]"
+          variant="auth"
+          className="mt-2"
         />
 
         <div className="mt-3 flex items-center justify-between gap-4">
@@ -62,7 +64,7 @@ export function LoginForm({
 
         <Button
           type="submit"
-          className="mx-auto mt-5 w-full rounded-xl bg-[rgb(78,36,77)] p-3 text-sm  text-[rgb(242,247,250)] transition-colors duration-300 hover:bg-[rgb(34,44,49)] hover:text-white"
+          variant="brand"
         >
           Giriş Yap
         </Button>

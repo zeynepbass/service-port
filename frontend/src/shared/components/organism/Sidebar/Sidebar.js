@@ -16,6 +16,9 @@ export function Sidebar() {
     active,
     storedData,
     category,
+    filteredCategory,
+    searchQuery,
+    handleSearchChange,
     handleClick,
     handleCategoryClick,
   } = useSidebar();
@@ -66,6 +69,8 @@ export function Sidebar() {
         <SearchBar
           setOpen={setOpen}
           open={open}
+          value={searchQuery}
+          onChange={handleSearchChange}
         />
       </div>
 
@@ -80,26 +85,32 @@ export function Sidebar() {
             </p>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
-              {category.map((item) => (
-                <button
-                  key={item.isim}
-                  type="button"
-                  onClick={() =>
-                    handleCategoryClick(item.isim)
-                  }
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#F1EDF5]"
-                >
-                  <img
-                    src={item.resim}
-                    alt={item.isim}
-                    className="h-9 w-9 rounded-lg object-cover"
-                  />
+              {filteredCategory.length === 0 ? (
+                <p className="px-3 py-2.5 text-sm text-gray-400">
+                  "{searchQuery}" için sonuç bulunamadı.
+                </p>
+              ) : (
+                filteredCategory.map((item) => (
+                  <button
+                    key={item.isim}
+                    type="button"
+                    onClick={() =>
+                      handleCategoryClick(item.isim)
+                    }
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#F1EDF5]"
+                  >
+                    <img
+                      src={item.resim}
+                      alt={item.isim}
+                      className="h-9 w-9 rounded-lg object-cover"
+                    />
 
-                  <span className="text-sm font-medium capitalize text-gray-700">
-                    {item.isim}
-                  </span>
-                </button>
-              ))}
+                    <span className="text-sm font-medium capitalize text-gray-700">
+                      {item.isim}
+                    </span>
+                  </button>
+                ))
+              )}
             </div>
           </div>
         )}

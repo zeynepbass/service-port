@@ -174,7 +174,7 @@ export function ServiceContactForm({
           <div className="pt-2">
             <Button
               type="submit"
-              className="w-full rounded-xl bg-[#6B4F6D] px-5 py-3 text-sm  text-white shadow-sm transition-all duration-200 hover:bg-[#4E244D]"
+              variant="primary"
             >
               Tümünü Kaydet
             </Button>

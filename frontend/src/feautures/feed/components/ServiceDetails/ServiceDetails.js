@@ -5,7 +5,6 @@ import { Heading } from "@/shared/components/atoms";
 import { Location } from "@/shared/components/organism";
 
 export function ServiceDetails({ data }) {
-  console.log(data)
   return (
     <section className="mt-8">
 

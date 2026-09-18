@@ -42,7 +42,7 @@ export default function ForgotPassword() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email*"
-              className="w-full bg-[rgb(242,247,250)] rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(255,127,60)]"
+              variant="accent"
             />
 
             <Input
@@ -51,7 +51,7 @@ export default function ForgotPassword() {
               value={formData.yeniParola}
               onChange={handleChange}
               placeholder="Yeni şifre*"
-              className="w-full bg-[rgb(242,247,250)] rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(255,127,60)]"
+              variant="accent"
             />
 
             <Input
@@ -60,7 +60,7 @@ export default function ForgotPassword() {
               value={formData.yeniParolaTekrar}
               onChange={handleChange}
               placeholder="Yeni Şifre Tekrar*"
-              className="w-full bg-[rgb(242,247,250)] rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(255,127,60)]"
+              variant="accent"
             />
 
             <Button

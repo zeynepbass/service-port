@@ -60,7 +60,7 @@ export async function getUsers  () {
 };
 
 
-export async function getUsergetUserDetails  (id) {
+export async function getUserDetails  (id) {
   const { data } = await apiClient.get(`/kullanici/${id}`);
 
   return data;
