@@ -10,9 +10,9 @@ export function HomeEmptyState({ tab }) {
           />
         )}
   
-        {/* <p className=" text-[#222C31] ">
+        <p className=" text-[#222C31] ">
           {tab.content}
-        </p> */}
+        </p>
   
         {tab.button && (
           <Button className="text-[#222C31] underline p-3 rounded-md mt-2">
