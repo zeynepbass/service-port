@@ -87,7 +87,9 @@ export function Sidebar() {
             <div className="rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
               {filteredCategory.length === 0 ? (
                 <p className="px-3 py-2.5 text-sm text-gray-400">
-                  "{searchQuery}" için sonuç bulunamadı.
+                  {searchQuery.trim()
+                    ? `"${searchQuery}" için sonuç bulunamadı.`
+                    : "Gösterilecek hizmet bulunamadı."}
                 </p>
               ) : (
                 filteredCategory.map((item) => (
