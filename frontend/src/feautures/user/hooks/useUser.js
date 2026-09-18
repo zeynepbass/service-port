@@ -3,7 +3,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getActiveRenovations } from  "@/feautures/feed/hooks/useService";
+import { getActiveRenovations } from  "@/feautures/feed/api/post.api";
 import { getUsers } from "../api/user.api";
 
 export function useTadilat ()  {

@@ -36,7 +36,7 @@ export function ProfileForm({
             value={form.ad}
             onChange={handleChange}
             placeholder="Adınızı girin"
-            className="w-full rounded-xl border border-gray-200 bg-[#F7F7F9] px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#B9A6BF] focus:bg-white focus:ring-2 focus:ring-[#EDE7F1]"
+            variant="settings"
           />
         </div>
 
@@ -56,7 +56,7 @@ export function ProfileForm({
             value={form.soyad}
             onChange={handleChange}
             placeholder="Soyadınızı girin"
-            className="w-full rounded-xl border border-gray-200 bg-[#F7F7F9] px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#B9A6BF] focus:bg-white focus:ring-2 focus:ring-[#EDE7F1]"
+            variant="settings"
           />
         </div>
 
@@ -76,7 +76,7 @@ export function ProfileForm({
             value={form.email}
             onChange={handleChange}
             placeholder="E-posta adresinizi girin"
-            className="w-full rounded-xl border border-gray-200 bg-[#F7F7F9] px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#B9A6BF] focus:bg-white focus:ring-2 focus:ring-[#EDE7F1]"
+            variant="settings"
           />
         </div>
 

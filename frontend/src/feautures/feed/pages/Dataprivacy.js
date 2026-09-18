@@ -5,9 +5,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  accountDelete,
+  deleteAccount as accountDelete,
   updateAccount,
-} from "@/feautures/user/hooks/useAccount";
+} from "@/feautures/user/api/user.api";
 
 import { DataAccountOptions } from "../components/DataAccountOptions";
 

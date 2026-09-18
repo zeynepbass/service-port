@@ -2,7 +2,7 @@
 "use client";
 
 import { Button } from "@/shared/components/atoms";
-import { Konum } from "@/shared/components/organism";
+import { Location as Konum } from "@/shared/components/organism";
 
 export function KullaniciCard({ slide, onMessage }) {
   return (
@@ -142,7 +142,7 @@ export function KullaniciCard({ slide, onMessage }) {
           <Button
             type="button"
             onClick={onMessage}
-            className="w-full rounded-xl bg-[#6B4F6D] px-5 py-3 text-sm  text-white shadow-sm transition-all duration-200 hover:bg-[#4E244D]"
+            variant="primary"
           >
             Mesaj Gönder
           </Button>

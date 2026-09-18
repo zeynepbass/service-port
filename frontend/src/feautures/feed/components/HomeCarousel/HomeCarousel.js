@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/components/atoms";
 export function HomeCarousel({ slides }) {
   const [current, setCurrent] = useState(0);
+  const [userControl, setUserControl] = useState(null);
   const itemsPerView = 3;
   const router = useRouter();
 
-  const maxIndex = slides.length - itemsPerView;
+  const maxIndex = Math.max(slides.length - itemsPerView, 0);
 
   const prev = () => {
     setCurrent((c) => (c <= 0 ? maxIndex : c - 1));
@@ -17,7 +18,11 @@ export function HomeCarousel({ slides }) {
   const next = () => {
     setCurrent((c) => (c >= maxIndex ? 0 : c + 1));
   };
-  const userControl = localStorage.getItem("kullaniciAdi");
+
+  useEffect(() => {
+    setUserControl(localStorage.getItem("kullaniciAdi"));
+  }, []);
+
   return (
     <div className="relative p-5 w-[80%] mx-auto">
       <div className={`${userControl ? "opacity-50 pointer-events-none" : ""}`}>

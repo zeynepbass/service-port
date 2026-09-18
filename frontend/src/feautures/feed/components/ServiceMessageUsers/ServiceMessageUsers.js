@@ -7,7 +7,6 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 
 export function ServiceMessageUsers({ users }) {
-  console.log(users)
   return (
     <div className="mt-6">
       <span className="text-xl  text-gray-600">

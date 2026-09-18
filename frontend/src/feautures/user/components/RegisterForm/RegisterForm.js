@@ -42,7 +42,8 @@ export function RegisterForm({
             value={formData.ad}
             onChange={handleChange}
             placeholder="Ad*"
-            className="w-full flex-1 rounded-lg border border-gray-200 bg-[rgb(242,247,250)] p-3 text-sm outline-none transition focus:border-[rgb(34,44,49)] focus:ring-1 focus:ring-[rgb(34,44,49)]"
+            variant="auth"
+            className="flex-1"
           />
 
           <Input
@@ -51,7 +52,8 @@ export function RegisterForm({
             value={formData.soyad}
             onChange={handleChange}
             placeholder="Soyad*"
-            className="w-full flex-1 rounded-lg border border-gray-200 bg-[rgb(242,247,250)] p-3 text-sm outline-none transition focus:border-[rgb(34,44,49)] focus:ring-1 focus:ring-[rgb(34,44,49)]"
+            variant="auth"
+            className="flex-1"
           />
         </div>
 
@@ -61,7 +63,7 @@ export function RegisterForm({
           value={formData.email}
           onChange={handleChange}
           placeholder="Email*"
-          className="w-full rounded-lg border border-gray-200 bg-[rgb(242,247,250)] p-3 text-sm outline-none transition focus:border-[rgb(34,44,49)] focus:ring-1 focus:ring-[rgb(34,44,49)]"
+          variant="auth"
         />
 
         <Input
@@ -70,12 +72,12 @@ export function RegisterForm({
           value={formData.parola}
           onChange={handleChange}
           placeholder="Parola*"
-          className="w-full rounded-lg border border-gray-200 bg-[rgb(242,247,250)] p-3 text-sm outline-none transition focus:border-[rgb(34,44,49)] focus:ring-1 focus:ring-[rgb(34,44,49)]"
+          variant="auth"
         />
 
         <Button
           type="submit"
-    className="mx-auto mt-5 w-full rounded-xl bg-[rgb(78,36,77)] p-3 text-sm  text-[rgb(242,247,250)] transition-colors duration-300 hover:bg-[rgb(34,44,49)] hover:text-white"
+          variant="brand"
         >
           {kullaniciStorage ? "Kayıt Ol" : "Kaydet"}
         </Button>

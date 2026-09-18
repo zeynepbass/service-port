@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
-import { getUserDetails } from "../api/post.api";
+import { getUserDetails } from "@/feautures/user/api/user.api";
 
 export function useAccountDetails() {
   const router = useRouter();
