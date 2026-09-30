@@ -1,83 +1,73 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/shared/components/atoms";
-export function HomeCarousel({ slides }) {
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { useCategories } from "../../hooks/useCategories";
+
+const ITEMS_PER_VIEW = 3;
+
+export function CategoryCarousel() {
+  const { categories } = useCategories();
   const [current, setCurrent] = useState(0);
-  const [userControl, setUserControl] = useState(null);
-  const itemsPerView = 3;
-  const router = useRouter();
+  const maxIndex = Math.max(categories.length - ITEMS_PER_VIEW, 0);
 
-  const maxIndex = Math.max(slides.length - itemsPerView, 0);
-
-  const prev = () => {
-    setCurrent((c) => (c <= 0 ? maxIndex : c - 1));
-  };
-
-  const next = () => {
-    setCurrent((c) => (c >= maxIndex ? 0 : c + 1));
-  };
-
-  useEffect(() => {
-    setUserControl(localStorage.getItem("kullaniciAdi"));
-  }, []);
+  if (categories.length === 0) return null;
 
   return (
-    <div className="relative p-5 w-[80%] mx-auto">
-      <div className={`${userControl ? "opacity-50 pointer-events-none" : ""}`}>
-        <h6 className=" pb-3 text-gray-600">Trend Hizmetler</h6>
-
-        <div className="overflow-hidden">
-          <div
-            className="flex transition-transform duration-500 ease-in-out"
-            style={{
-              transform: `translateX(-${(current * 100) / itemsPerView}%)`,
-              width: `${(slides.length * 100) / itemsPerView}%`,
-            }}
+    <section aria-labelledby="trending-title" className="relative mx-auto w-[80%] p-5">
+      <div className="flex items-center justify-between pb-3">
+        <h2 id="trending-title" className="text-gray-600">
+          Trend Hizmetler
+        </h2>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            aria-label="Önceki hizmetler"
+            onClick={() => setCurrent((index) => (index <= 0 ? maxIndex : index - 1))}
+            className="rounded-full bg-white/90 p-2 text-[rgb(34,44,49)] shadow hover:bg-white"
           >
-            <div className="flex">
-              {slides?.map((slide, idx) => (
-                <div
-                  key={slide._id ?? idx}
-                  onClick={() => router.push(`/detay/${slide._id}`)}
-                  className="px-2 cursor-pointer basis-1/4"
-                >
-                  <div className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition-shadow duration-200">
-                    <img
-                      src={slide.resim}
-                      alt={slide.isim}
-                      className="w-full h-40 object-cover"
-                    />
-                    <div className="p-3">
-                      <h3 className="text-center text-gray-700  text-sm truncate">
-                        {slide.isim}
-                      </h3>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+            <ChevronLeft size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Sonraki hizmetler"
+            onClick={() => setCurrent((index) => (index >= maxIndex ? 0 : index + 1))}
+            className="rounded-full bg-white/90 p-2 text-[rgb(34,44,49)] shadow hover:bg-white"
+          >
+            <ChevronRight size={18} aria-hidden="true" />
+          </button>
         </div>
-        <Button
-        onClick={prev}
-        className="absolute right-20 top-5 -translate-y-1/2 text-[rgb(34,44,49)] bg-white/90 p-2 rounded-full shadow hover:bg-white z-10"
-
-  type="button"
-
->
-◀
-</Button>
-<Button
-  type="button"
-        onClick={next}
-        className="absolute right-10 top-5 -translate-y-1/2 text-[rgb(34,44,49)] bg-white/90 p-2 rounded-full shadow hover:bg-white z-10"
-      >
-        ▶
-</Button>
-
       </div>
-    </div>
+
+      <div className="overflow-hidden">
+        <ul
+          className="flex transition-transform duration-500 ease-in-out"
+          style={{ transform: `translateX(-${(current * 100) / ITEMS_PER_VIEW}%)` }}
+        >
+          {categories.map((category) => (
+            <li key={category.id} className="shrink-0 basis-1/3 px-2">
+              <Link
+                href={`/kategori/${category.slug}/talep-olustur`}
+                className="block overflow-hidden rounded-xl bg-white shadow transition-shadow duration-200 hover:shadow-md"
+              >
+                {category.image && (
+                  <Image
+                    src={category.image}
+                    alt=""
+                    width={400}
+                    height={160}
+                    sizes="(max-width: 768px) 33vw, 25vw"
+                    className="h-40 w-full object-cover"
+                  />
+                )}
+                <span className="block truncate p-3 text-center text-sm text-gray-700">{category.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }

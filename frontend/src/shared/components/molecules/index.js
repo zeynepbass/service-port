@@ -4,3 +4,4 @@ export { Loading } from "./Loading";
 export { Modal } from "./Modal";
 export { SearchBar } from "./SearchBar";
 export { StarRating } from "./StarRating";
+export { TextField } from "./TextField";

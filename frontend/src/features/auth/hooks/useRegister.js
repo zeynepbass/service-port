@@ -1,101 +1,35 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/shared/api/client";
+import { register } from "../api/auth.api";
+import { registerSchema } from "../utils/schemas";
 
-import { register } from  "../api/user.api";
-
-export function useRegister  ()  {
+export function useRegister() {
   const router = useRouter();
-
-  const [kullaniciStorage, setKullaniciStore] = useState(null);
-
-  const [formData, setFormData] = useState({
-    ad: "",
-    soyad: "",
-    email: "",
-    parola: "",
+  const form = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { firstName: "", lastName: "", email: "", password: "" },
   });
 
-  useEffect(() => {
-    const store = JSON.parse(
-      localStorage.getItem("kullanici") || "null"
-    );
-
-    setKullaniciStore(store);
-  }, []);
-
-  const registerMutation = useMutation({
+  const mutation = useMutation({
     mutationFn: register,
-
-    onSuccess: (res) => {
-      if (!res.data?.yeniKullanici) {
-        toast.error(
-          "Kayıt sırasında beklenmedik bir cevap alındı",
-          {
-            position: "top-right",
-            autoClose: 3000,
-          }
-        );
-
-        return;
-      }
-
-      toast.success(
-        res.data.message || "Kayıt başarılı!",
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
-
-      localStorage.setItem(
-        "kullanici",
-        JSON.stringify(res.data.yeniKullanici)
-      );
-
-      localStorage.removeItem("kullaniciAdi");
-
-      setTimeout(() => {
-        router.push("/");
-      }, 100);
+    onSuccess: () => {
+      toast.success("Kayıt başarılı! Şimdi giriş yapabilirsin.");
+      router.push("/giris-yap");
     },
-
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || "Bir hata oluştu",
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
+      toast.error(getErrorMessage(error, "Kayıt oluşturulamadı"));
     },
   });
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    registerMutation.mutate(formData);
-  };
 
   return {
-    formData,
-    kullaniciStorage,
-
-    handleChange,
-    handleSubmit,
-
-    isLoading: registerMutation.isPending,
+    form,
+    onSubmit: form.handleSubmit((values) => mutation.mutate(values)),
+    isLoading: mutation.isPending,
   };
-};
-
+}

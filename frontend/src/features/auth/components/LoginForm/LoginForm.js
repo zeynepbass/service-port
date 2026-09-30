@@ -1,82 +1,54 @@
-
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button, Heading, Input } from "@/shared/components/atoms";
+import { Button, Heading } from "@/shared/components/atoms";
+import { TextField } from "@/shared/components/molecules";
 
-export function LoginForm({
-  formData,
-  handleChange,
-  handleSubmit,
-}) {
-  const router = useRouter();
+export function LoginForm({ form, onSubmit, isLoading }) {
+  const {
+    register,
+    formState: { errors },
+  } = form;
 
   return (
-    <div className="flex w-full items-center justify-center bg-white">
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-full max-w-md flex-col gap-1"
-      >
-        <div className="mb-5">
-          <Heading
-            title="GİRİŞ YAP"
-            desc="Güvenliğiniz için yalnızca kendi cihazlarınızdan giriş yapın."
-          />
-        </div>
+    <form onSubmit={onSubmit} noValidate className="flex w-full flex-col gap-3">
+      <div className="mb-3">
+        <Heading title="GİRİŞ YAP" desc="Güvenliğiniz için yalnızca kendi cihazlarınızdan giriş yapın." />
+      </div>
 
-        <Input
-          type="text"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Email*"
-          variant="auth"
-          className="mt-2"
-        />
+      <TextField
+        id="login-email"
+        label="E-posta"
+        srOnlyLabel
+        type="email"
+        autoComplete="email"
+        placeholder="Email*"
+        error={errors.email?.message}
+        {...register("email")}
+      />
+      <TextField
+        id="login-password"
+        label="Parola"
+        srOnlyLabel
+        type="password"
+        autoComplete="current-password"
+        placeholder="Parola*"
+        error={errors.password?.message}
+        {...register("password")}
+      />
 
-        <Input
-          type="password"
-          name="parola"
-          value={formData.parola}
-          onChange={handleChange}
-          placeholder="Parola*"
-          variant="auth"
-          className="mt-2"
-        />
+      <div className="mt-1 flex items-center justify-between gap-4">
+        <Link href="/sifremi-unuttum" className="text-sm text-gray-500 transition-colors hover:text-[rgb(78,36,77)]">
+          Şifremi unuttum
+        </Link>
+        <Link href="/kayit-ol" className="text-sm text-gray-500 transition-colors hover:text-[rgb(78,36,77)]">
+          Kayıt ol
+        </Link>
+      </div>
 
-        <div className="mt-3 flex items-center justify-between gap-4">
-          <Link
-            href="/sifremi-unuttum"
-            className="text-sm text-gray-400 transition-colors hover:text-[rgb(78,36,77)]"
-          >
-            Şifremi unuttum
-          </Link>
-
-          <button
-            type="button"
-            onClick={() => router.push("/kayit-ol")}
-            className="text-sm text-gray-400 transition-colors hover:text-[rgb(78,36,77)]"
-          >
-            Kayıt ol
-          </button>
-        </div>
-
-        <Button
-          type="submit"
-          variant="brand"
-        >
-          Giriş Yap
-        </Button>
-
-        <Button
-          type="button"
-          onClick={() => router.push("/kullanici-adi-giris")}
-          className="mx-auto mt-2 w-full rounded-xl p-3 text-sm text-gray-400 transition-colors duration-300 hover:bg-gray-50 hover:text-[rgb(78,36,77)]"
-        >
-          Kullanıcı adı ile giriş yap
-        </Button>
-      </form>
-    </div>
+      <Button type="submit" variant="brand" disabled={isLoading}>
+        {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
+      </Button>
+    </form>
   );
 }

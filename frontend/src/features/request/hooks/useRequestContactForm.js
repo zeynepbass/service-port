@@ -1,154 +1,72 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "@/shared/api/client";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { toDateInputValue } from "@/shared/utils/format";
+import { updateRequest } from "../api/request.api";
+import { contactSchema, toContactPayload } from "../utils/schemas";
 
-import {
-  updateActive,
-  getActiveRenovations,
-  getConversations,
-} from "../api/post.api";
-import {  getUsers} from "@/feautures/user/api/user.api"
+function defaultsFrom(request) {
+  return {
+    phone: request?.contact?.phone ?? "",
+    endsAt: toDateInputValue(request?.endsAt),
+    location: request?.location ?? null,
+  };
+}
 
-export function useService (paramsId) {
-  const router = useRouter();
+export function useRequestContactForm(request) {
+  const queryClient = useQueryClient();
+  const [isLocating, setIsLocating] = useState(false);
+  const form = useForm({ resolver: zodResolver(contactSchema), values: defaultsFrom(request) });
 
-  const [location, setLocation] = useState("");
-  const [phone, setPhone] = useState("");
-  const [sure, setSure] = useState(null);
-  const [promptPhone, setPromptPhone] = useState(false);
-  const [storedUser, setStoredUser] = useState(null);
-
-  const id = paramsId;
-
-
-  useEffect(() => {
-    const user = JSON.parse(
-      localStorage.getItem("kullanici") || "{}"
-    );
-
-    setStoredUser(user);
-  }, []);
-
-
-  const {
-    data: storedData,
-    isLoading: isServiceLoading,
-  } = useQuery({
-    queryKey: ["active-renovation", id],
-    queryFn: () => getActiveRenovations(id),
-    enabled: !!id,
-  });
-
-
-  const {
-    data: users = [],
-    isLoading: isUsersLoading,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: getUsers,
-  });
-
-
-  const {
-    data: chat = [],
-    isLoading: isChatLoading,
-  } = useQuery({
-    queryKey: ["conversations", storedUser?.id],
-    queryFn: () => getConversations(storedUser.id),
-    enabled: !!storedUser?.id,
-  });
-
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, formData }) =>
-      updateActive(id, formData),
-
-    onSuccess: () => {
-      setLocation("");
-      setPhone("");
-      setPromptPhone(false);
-      setSure(null);
+  const mutation = useMutation({
+    mutationFn: (payload) => updateRequest(request.id, payload),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.request(updated.id), updated);
+      queryClient.invalidateQueries({ queryKey: queryKeys.requestsRoot });
+      toast.success("Talep bilgileri kaydedildi");
     },
-
-    onError: (error) => {
-      console.error("İlan güncellenemedi:", error);
-    },
+    onError: (error) => toast.error(getErrorMessage(error, "Talep güncellenemedi")),
   });
 
-  const handleGetLocation = () => {
+  function detectLocation() {
     if (!navigator.geolocation) {
-      alert("Tarayıcı konumu desteklemiyor!");
+      toast.error("Tarayıcın konum özelliğini desteklemiyor");
       return;
     }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        form.setValue("location", { lat: coords.latitude, lng: coords.longitude }, { shouldDirty: true });
+        setIsLocating(false);
+      },
+      () => {
+        toast.error("Konum alınamadı");
+        setIsLocating(false);
+      },
+    );
+  }
 
-    navigator.geolocation.getCurrentPosition((position) => {
-      setLocation(
-        `Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}`
-      );
-    });
-  };
-
-  const handleGetPhone = () => {
-    setPromptPhone((prev) => !prev);
-  };
-
-  const handleGetCalendar = () => {
-    setSure((prev) => (prev ? null : new Date()));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const formData = {
-      konum: location,
-      telefonNo: phone,
-      bitisTarihi: sure ? sure.toISOString() : null,
-    };
-
-    updateMutation.mutate({
-      id,
-      formData,
-    });
-  };
-
-  const handleBack = () => {
-    router.back();
-  };
-
-  const filteredData = users.filter((userItem) =>
-    chat.some(
-      (chatItem) =>
-        chatItem.gonderenId === userItem._id
-    )
-  );
+  const onSubmit = form.handleSubmit((values) => {
+    const payload = toContactPayload(values, form.formState.dirtyFields);
+    if (Object.keys(payload).length === 0) {
+      toast.info("Değişiklik yapılmadı");
+      return;
+    }
+    mutation.mutate(payload);
+  });
 
   return {
-    storedData,
-    filteredData,
-
-    location,
-    phone,
-    sure,
-    promptPhone,
-
-    setPhone,
-    setSure,
-
-    handleGetLocation,
-    handleGetPhone,
-    handleGetCalendar,
-    handleSubmit,
-    handleBack,
-
-    isLoading:
-      isServiceLoading ||
-      isUsersLoading ||
-      isChatLoading,
-
-    isUpdating: updateMutation.isPending,
+    form,
+    onSubmit,
+    detectLocation,
+    clearLocation: () => form.setValue("location", null, { shouldDirty: true }),
+    isLocating,
+    isSaving: mutation.isPending,
   };
-};
-
+}

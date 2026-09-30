@@ -1,78 +1,37 @@
-
 "use client";
 
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/shared/api/client";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { safeRedirectPath } from "@/shared/utils/validation";
+import { login } from "../api/auth.api";
+import { loginSchema } from "../utils/schemas";
 
-import { Login } from "../api/user.api";
-
-export function useLogin () {
+export function useLogin(nextPath) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const form = useForm({ resolver: zodResolver(loginSchema), defaultValues: { email: "", password: "" } });
 
-  const [formData, setFormData] = useState({
-    email: "",
-    parola: "",
+  const mutation = useMutation({
+    mutationFn: login,
+    onSuccess: (user) => {
+      queryClient.setQueryData(queryKeys.session, user);
+      toast.success("Giriş başarılı!");
+      router.replace(safeRedirectPath(nextPath));
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, "Giriş yapılamadı"));
+    },
   });
 
-
-
-const loginMutation = useMutation({
-  mutationFn: Login,
-
-  onSuccess: (res) => {
-    toast.success(res.message || "Giriş başarılı!", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-
-    localStorage.setItem(
-      "kullanici",
-      JSON.stringify(res.kullanici)
-    );
-
-    if (res.token) {
-      document.cookie = `token=${res.token}; path=/; max-age=${
-        60 * 60 * 24
-      }`;
-    }
-
-    router.push("/ana-sayfa");
-  },
-
-  onError: (error) => {
-    toast.error(
-      error.response?.data?.message || "Bir hata oluştu",
-      {
-        position: "top-right",
-        autoClose: 3000,
-      }
-    );
-  },
-});
-
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    toast.dismiss();
-
-    loginMutation.mutate(formData);
-  };
-
   return {
-    formData,
-    handleChange,
-    handleSubmit,
-    isLoading: loginMutation.isPending,
+    form,
+    onSubmit: form.handleSubmit((values) => mutation.mutate(values)),
+    isLoading: mutation.isPending,
   };
-};
-
+}

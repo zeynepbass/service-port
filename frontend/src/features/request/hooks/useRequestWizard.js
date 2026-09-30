@@ -1,183 +1,70 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "@/shared/api/client";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { createRequest } from "../api/request.api";
+import { stepSchema } from "../utils/schemas";
 
-import {
-  getRenovationById,
-  createActiveRenovation,
-  updateStatus,
-} from "../api/post.api";
-
-export function useRequest(id)  {
-  const router = useRouter();
-
-  const [open, setOpen] = useState(false);
-  const [dialog, setOpenDialog] = useState(false);
+export function useRequestWizard(template) {
+  const queryClient = useQueryClient();
+  const steps = useMemo(() => template?.steps ?? [], [template]);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [showRequestExitModal, setShowRequestExitModal] = useState(false);
+  const step = steps[currentStep];
+  const stepRef = useRef(step);
+  stepRef.current = step;
 
-  const [stored, setKullanici] = useState(null);
-  const [storedData, setStoredItem] = useState(null);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["tadilat", id],
-    queryFn: () => getRenovationById(id),
-    enabled: !!id,
+  const form = useForm({
+    resolver: (values, context, options) =>
+      zodResolver(stepSchema(stepRef.current?.options ?? []))(values, context, options),
+    defaultValues: { selected: "" },
   });
-
-  const steps = data?.[0]?.adimlar ?? [];
-  const item = data?.[0]?.kategori ?? "";
-
-  useEffect(() => {
-    const kullanici = JSON.parse(
-      localStorage.getItem("kullanici")
-    );
-
-    const storedItem = localStorage.getItem("item");
-
-    setKullanici(kullanici);
-    setStoredItem(storedItem);
-  }, []);
 
   const createMutation = useMutation({
-    mutationFn: createActiveRenovation,
-
-    onSuccess: (response) => {
-      localStorage.setItem("item", response.primaryKey);
-      localStorage.setItem("itemDurum", response._id);
-
-      setOpen(true);
+    mutationFn: createRequest,
+    onSuccess: (request) => {
+      queryClient.setQueryData(queryKeys.request(request.id), request);
+      queryClient.invalidateQueries({ queryKey: queryKeys.requestsRoot });
     },
-
-    onError: (error) => {
-      console.error(
-        "Post işlemi başarısız:",
-        error
-      );
-    },
+    onError: (error) => toast.error(getErrorMessage(error, "Talep oluşturulamadı")),
   });
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, forceIptal }) =>
-      updateStatus(id, null, forceIptal),
+  function goTo(index, nextAnswers) {
+    setCurrentStep(index);
+    form.reset({ selected: nextAnswers[index]?.selected ?? "" });
+  }
 
-    onSuccess: () => {
-      setOpenDialog(true);
-    },
+  const submitStep = form.handleSubmit(({ selected }) => {
+    const nextAnswers = [...answers];
+    nextAnswers[currentStep] = { question: step.question, selected };
+    setAnswers(nextAnswers);
 
-    onError: (error) => {
-      console.error(
-        "Durum güncellenemedi:",
-        error
-      );
-    },
-  });
-
-  const handleAnswer = (option) => {
-    setAnswers((prev) => {
-      const updated = [...prev];
-
-      updated[currentStep] = {
-        kategoriIsim: steps[currentStep].baslik,
-        secenekler: steps[currentStep].secenekler,
-        secilen: option,
-      };
-
-      return updated;
-    });
-  };
-
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
-
-  const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep((prev) => prev + 1);
+      goTo(currentStep + 1, nextAnswers);
       return;
     }
 
-    const dataToSend = {
-      primaryKey: id,
-      anaBaslik: item.isim,
-      durum: "aktif",
+    createMutation.mutate({ categoryId: template.category.id, answers: nextAnswers });
+  });
 
-      ad: stored?.ad,
-      soyad: stored?.soyad,
-      email: stored?.email,
-      kullaniciId: stored?.id,
-
-      veriler: answers.map((ans) => ({
-        kategoriIsim: ans.kategoriIsim,
-        secenekler: ans.secenekler,
-        secilen: ans.secilen,
-      })),
-
-      telefonNo: stored?.telefonNo || null,
-      konum: stored?.konum || null,
-    };
-
-    createMutation.mutate(dataToSend);
-  };
-
-  const handleClick = () => {
-    const durumId = localStorage.getItem("itemDurum");
-
-    updateMutation.mutate({
-      id: durumId,
-      forceIptal: true,
-    });
-  };
-
-  const handleClose = (reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenDialog(false);
-    router.push("/ana-sayfa");
-  };
-
-  const handleExit = () => {
-    setShowRequestExitModal(false);
-    router.push("/ana-sayfa");
-  };
-
-  const progressPercent = steps.length
-    ? ((currentStep + 1) / steps.length) * 100
-    : 0;
+  function goBack() {
+    if (currentStep > 0) goTo(currentStep - 1, answers);
+  }
 
   return {
-    open,
-    dialog,
+    form,
+    step,
     currentStep,
-    answers,
-    showRequestExitModal,
-
-    steps,
-    item,
-    storedData,
-
-    progressPercent,
-
-    isLoading,
-    isCreating: createMutation.isPending,
-    isUpdating: updateMutation.isPending,
-
-    handleAnswer,
-    handleBack,
-    handleNext,
-    handleClick,
-    handleClose,
-    handleExit,
-
-    setShowRequestExitModal,
+    totalSteps: steps.length,
+    progressPercent: steps.length ? ((currentStep + 1) / steps.length) * 100 : 0,
+    submitStep,
+    goBack,
+    createdRequest: createMutation.data ?? null,
+    isSubmitting: createMutation.isPending,
   };
-};
-
+}

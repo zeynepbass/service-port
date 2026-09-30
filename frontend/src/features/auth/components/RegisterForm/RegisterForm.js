@@ -1,87 +1,76 @@
-
 "use client";
 
-import { Button, Heading, Input } from "@/shared/components/atoms";
+import Link from "next/link";
+import { Button, Heading } from "@/shared/components/atoms";
+import { TextField } from "@/shared/components/molecules";
 
-export function RegisterForm({
-  formData,
-  handleChange,
-  handleSubmit,
-  kullaniciStorage,
-}) {
+export function RegisterForm({ form, onSubmit, isLoading }) {
+  const {
+    register,
+    formState: { errors },
+  } = form;
+
   return (
-    <div className="flex w-full items-center justify-center bg-white">
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-full max-w-md flex-col gap-4 "
-      >
-        <div className="mb-3">
-          <Heading
-            variant="login"
-            title={kullaniciStorage ? "Kayıt Ol" : "Kaydet"}
-            desc={
-              <>
-                Kayıt olarak{" "}
-                <span className="cursor-pointer underline">
-                  Gizlilik Politikası
-                </span>{" "}
-                ve{" "}
-                <span className="cursor-pointer underline">
-                  Kullanım Şartlarını
-                </span>{" "}
-                kabul etmiş olursunuz.
-              </>
-            }
-          />
-        </div>
+    <form onSubmit={onSubmit} noValidate className="flex w-full flex-col gap-4">
+      <div className="mb-3">
+        <Heading title="Kayıt Ol" desc="Kayıt olarak Gizlilik Politikası ve Kullanım Şartlarını kabul etmiş olursunuz." />
+      </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Input
-            type="text"
-            name="ad"
-            value={formData.ad}
-            onChange={handleChange}
-            placeholder="Ad*"
-            variant="auth"
-            className="flex-1"
-          />
-
-          <Input
-            type="text"
-            name="soyad"
-            value={formData.soyad}
-            onChange={handleChange}
-            placeholder="Soyad*"
-            variant="auth"
-            className="flex-1"
-          />
-        </div>
-
-        <Input
-          type="text"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Email*"
-          variant="auth"
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <TextField
+          id="register-first-name"
+          label="Ad"
+          srOnlyLabel
+          autoComplete="given-name"
+          placeholder="Ad*"
+          className="flex-1"
+          error={errors.firstName?.message}
+          {...register("firstName")}
         />
-
-        <Input
-          type="password"
-          name="parola"
-          value={formData.parola}
-          onChange={handleChange}
-          placeholder="Parola*"
-          variant="auth"
+        <TextField
+          id="register-last-name"
+          label="Soyad"
+          srOnlyLabel
+          autoComplete="family-name"
+          placeholder="Soyad*"
+          className="flex-1"
+          error={errors.lastName?.message}
+          {...register("lastName")}
         />
+      </div>
 
-        <Button
-          type="submit"
-          variant="brand"
-        >
-          {kullaniciStorage ? "Kayıt Ol" : "Kaydet"}
-        </Button>
-      </form>
-    </div>
+      <TextField
+        id="register-email"
+        label="E-posta"
+        srOnlyLabel
+        type="email"
+        autoComplete="email"
+        placeholder="Email*"
+        error={errors.email?.message}
+        {...register("email")}
+      />
+      <TextField
+        id="register-password"
+        label="Parola"
+        srOnlyLabel
+        type="password"
+        autoComplete="new-password"
+        placeholder="Parola*"
+        hint="En az 8 karakter, bir harf ve bir rakam"
+        error={errors.password?.message}
+        {...register("password")}
+      />
+
+      <Button type="submit" variant="brand" disabled={isLoading}>
+        {isLoading ? "Kaydediliyor..." : "Kayıt Ol"}
+      </Button>
+
+      <p className="text-center text-sm text-gray-500">
+        Zaten hesabın var mı?{" "}
+        <Link href="/giris-yap" className="text-[rgb(78,36,77)] underline">
+          Giriş yap
+        </Link>
+      </p>
+    </form>
   );
 }
