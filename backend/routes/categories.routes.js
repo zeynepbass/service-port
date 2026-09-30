@@ -15,12 +15,7 @@ const adminOnly = [requireAuth, requireRole("admin")];
 
 router.get("/", categories.listCategories);
 router.get("/:key", validate({ params: categoryKeyParams }), categories.getCategory);
-router.get(
-  "/:key/template",
-  requireAuth,
-  validate({ params: categoryKeyParams }),
-  templates.getTemplate,
-);
+router.get("/:key/template", requireAuth, validate({ params: categoryKeyParams }), templates.getTemplate);
 
 router.post("/", adminOnly, validate({ body: createCategorySchema }), categories.createCategory);
 router.patch(

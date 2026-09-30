@@ -1,34 +1,56 @@
 {
-  "name": "armut",
-  "version": "0.1.0",
+  "name": "hizmet-kap-frontend",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "analyze": "ANALYZE=true next build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@headlessui/react": "^2.2.7",
-    "@heroicons/react": "^2.2.0",
-    "@mui/icons-material": "^7.3.1",
-    "@mui/material": "^7.3.1",
-    "@mui/x-date-pickers": "^8.11.1",
-    "@tanstack/react-query": "^5.102.8",
+    "@hookform/resolvers": "^5.2.1",
+    "@tanstack/react-query": "^5.85.0",
     "axios": "^1.11.0",
-    "date-fns": "^4.1.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^0.540.0",
     "next": "15.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.62.0",
     "react-leaflet": "^5.0.0",
     "react-phone-number-input": "^3.4.12",
     "react-toastify": "^11.0.5",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@next/bundle-analyzer": "15.5.0",
+    "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^5.0.0",
+    "eslint": "^9.33.0",
+    "eslint-config-next": "15.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "jsdom": "^26.1.0",
+    "msw": "^2.10.5",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4",
+    "vitest": "^3.2.4"
   }
 }

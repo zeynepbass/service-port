@@ -65,10 +65,7 @@ export async function deleteAccount(userId, password) {
   await Promise.all([
     ServiceRequest.deleteMany({ owner: user._id }),
     RefreshToken.deleteMany({ user: user._id }),
-    Conversation.updateMany(
-      { participants: user._id },
-      { $pull: { states: { user: user._id } } },
-    ),
+    Conversation.updateMany({ participants: user._id }, { $pull: { states: { user: user._id } } }),
   ]);
   await user.deleteOne();
   await removeUpload(user.avatar);

@@ -15,17 +15,7 @@ router.post("/register", authRateLimit, validate({ body: registerSchema }), auth
 router.post("/login", authRateLimit, validate({ body: loginSchema }), auth.login);
 router.post("/refresh", auth.refresh);
 router.post("/logout", auth.logout);
-router.post(
-  "/forgot-password",
-  authRateLimit,
-  validate({ body: forgotPasswordSchema }),
-  auth.forgotPassword,
-);
-router.post(
-  "/reset-password",
-  authRateLimit,
-  validate({ body: resetPasswordSchema }),
-  auth.resetPassword,
-);
+router.post("/forgot-password", authRateLimit, validate({ body: forgotPasswordSchema }), auth.forgotPassword);
+router.post("/reset-password", authRateLimit, validate({ body: resetPasswordSchema }), auth.resetPassword);
 
 export default router;

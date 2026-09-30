@@ -160,9 +160,7 @@ describe("POST /api/auth/refresh", () => {
     expect(reuse.status).toBe(401);
     expect(reuse.body.error.code).toBe("REFRESH_REUSED");
 
-    const afterReuse = await request(app)
-      .post("/api/auth/refresh")
-      .set("Cookie", `refresh_token=${latest}`);
+    const afterReuse = await request(app).post("/api/auth/refresh").set("Cookie", `refresh_token=${latest}`);
     expect(afterReuse.status).toBe(401);
 
     const active = await RefreshToken.countDocuments({ user: user._id, revokedAt: null });

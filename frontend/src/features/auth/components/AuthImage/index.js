@@ -1,0 +1,1 @@
+export { AuthImage } from "./AuthImage";

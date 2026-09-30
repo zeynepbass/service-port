@@ -1,1 +1,0 @@
-export {KullaniciCard} from "./KullaniciCard"

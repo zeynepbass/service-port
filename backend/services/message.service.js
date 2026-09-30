@@ -124,7 +124,9 @@ export async function sendMessage(userId, conversationId, text) {
       $inc: { "states.$[recipient].unreadCount": 1 },
     },
     { new: true, arrayFilters: [{ "recipient.user": recipientId }] },
-  ).populate("participants", PARTICIPANT_FIELDS).populate("request", "title");
+  )
+    .populate("participants", PARTICIPANT_FIELDS)
+    .populate("request", "title");
 
   const payload = serializeMessage(message);
   emitToUsers([userId], "message:new", {

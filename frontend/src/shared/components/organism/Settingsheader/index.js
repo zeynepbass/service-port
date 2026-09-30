@@ -1,1 +1,0 @@
-export {Settingsheader} from "./Settingsheader"

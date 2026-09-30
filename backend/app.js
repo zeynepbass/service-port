@@ -7,8 +7,8 @@ import helmet from "helmet";
 import { pinoHttp } from "pino-http";
 import swaggerUi from "swagger-ui-express";
 import { corsOptions } from "./config/cors.js";
-import { env } from "./config/env.js";
 import { isDatabaseReady } from "./config/db.js";
+import { env } from "./config/env.js";
 import { logger } from "./config/logger.js";
 import { buildOpenApiDocument } from "./docs/openapi.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
@@ -27,9 +27,8 @@ export function createApp() {
       logger,
       genReqId(req, res) {
         const incoming = req.headers["x-request-id"];
-        const id = typeof incoming === "string" && REQUEST_ID_PATTERN.test(incoming)
-          ? incoming
-          : crypto.randomUUID();
+        const id =
+          typeof incoming === "string" && REQUEST_ID_PATTERN.test(incoming) ? incoming : crypto.randomUUID();
         res.setHeader("X-Request-Id", id);
         return id;
       },

@@ -14,11 +14,7 @@ const router = Router();
 router.use(requireAuth);
 
 router.get("/conversations", messages.listConversations);
-router.post(
-  "/conversations",
-  validate({ body: openConversationSchema }),
-  messages.openConversation,
-);
+router.post("/conversations", validate({ body: openConversationSchema }), messages.openConversation);
 router.get("/conversations/:id", validate({ params: idParams }), messages.getConversation);
 router.delete("/conversations/:id", validate({ params: idParams }), messages.hideConversation);
 router.get(

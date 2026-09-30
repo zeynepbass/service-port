@@ -1,7 +1,7 @@
 import { parse } from "cookie";
 import { Server } from "socket.io";
-import { logger } from "../config/logger.js";
 import { corsOptions } from "../config/cors.js";
+import { logger } from "../config/logger.js";
 import { ACCESS_COOKIE, verifyAccessToken } from "../utils/tokens.js";
 import { setSocketServer, userRoom } from "./emitter.js";
 
