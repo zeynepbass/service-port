@@ -1,76 +1,33 @@
-import Message from '../models/message.js';
-import mongoose from 'mongoose';
-export const getMessage = async (req, res) => {
-  const { gonderenId, aliciId } = req.params;
-  try {
-    const messages = await Message.find({
-      $or: [
-        { gonderenId, aliciId },
-        { gonderenId: aliciId, aliciId: gonderenId }
-      ]
-    }).sort({ time: 1 });
+import * as messageService from "../services/message.service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { created, noContent, ok } from "../utils/respond.js";
 
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-export const deleteMessagesBetweenUsers = async (req, res) => {
-  const { gonderenId, aliciId } = req.params;
-  try {
-    await Message.deleteMany({
-      $or: [
-        { gonderenId, aliciId },
-        { gonderenId: aliciId, aliciId: gonderenId }
-      ]
-    });
+export const listConversations = asyncHandler(async (req, res) => {
+  ok(res, await messageService.listConversations(req.user.id));
+});
 
-    res.status(200).json({ message: "Mesajlar başarıyla silindi" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-export const postMessage = async (req, res) => {
-  const { gonderenId, aliciId, text, time } = req.body;
+export const openConversation = asyncHandler(async (req, res) => {
+  ok(res, await messageService.openConversation(req.user.id, req.body));
+});
 
-  if (!gonderenId || !aliciId || !text) {
-    return res.status(400).json({ error: "Gerekli alanlar eksik" });
-  }
+export const getConversation = asyncHandler(async (req, res) => {
+  ok(res, await messageService.getConversation(req.user.id, req.params.id));
+});
 
-  try {
-    const yeniMesaj = new Message({
-      gonderenId,
-      aliciId,
-      text,
-      time: time ? new Date(time) : new Date(),
-    });
+export const listMessages = asyncHandler(async (req, res) => {
+  const { items, meta } = await messageService.listMessages(req.user.id, req.params.id, req.query);
+  ok(res, items, meta);
+});
 
-    await yeniMesaj.save();
-    res.status(201).json(yeniMesaj);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
-export const getConversations = async (req, res) => {
-  const { userId } = req.params;
-  try {
-    const objectUserId = new mongoose.Types.ObjectId(userId); 
+export const sendMessage = asyncHandler(async (req, res) => {
+  created(res, await messageService.sendMessage(req.user.id, req.params.id, req.body.text));
+});
 
-    const messages = await Message.find({
-      $or: [
-        { gonderenId: objectUserId },
-        { aliciId: objectUserId }
-      ]
-    }).sort({ createdAt: -1 });
+export const markRead = asyncHandler(async (req, res) => {
+  ok(res, await messageService.markConversationRead(req.user.id, req.params.id));
+});
 
-    const conversations = {};
-    messages.forEach(msg => {
-      const otherUser = msg.gonderenId.toString() === userId ? msg.aliciId.toString() : msg.gonderenId.toString();
-      conversations[otherUser] = msg;
-    });
-
-    res.json(Object.values(conversations));
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+export const hideConversation = asyncHandler(async (req, res) => {
+  await messageService.hideConversation(req.user.id, req.params.id);
+  noContent(res);
+});

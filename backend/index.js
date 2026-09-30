@@ -1,64 +1,52 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import post from "./routes/index.js";
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import path from "path";
-import http from 'http';
-import { Server } from 'socket.io';
-import Message from './models/message.js';
-dotenv.config();
+import http from "node:http";
+import { createApp } from "./app.js";
+import { connectDatabase, disconnectDatabase } from "./config/db.js";
+import { env } from "./config/env.js";
+import { logger } from "./config/logger.js";
+import { createSocketServer } from "./sockets/index.js";
 
-const app = express();
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
-app.use(bodyParser.json({ limit: '200mb' }));
-app.use(bodyParser.urlencoded({ limit: '200mb', extended: true }));
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-app.use('/', post);
+const SHUTDOWN_TIMEOUT_MS = 10000;
 
+async function start() {
+  await connectDatabase(env.MONGO_URI);
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB bağlantısı kuruldu'))
-.catch((err) => console.log('❌ Bağlantı hatası:', err));
+  const app = createApp();
+  const server = http.createServer(app);
+  const io = createSocketServer(server);
 
-
-const server = http.createServer(app);
-
-
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-    credentials: true
-  },
-});
-
-io.on("connection", (socket) => {
-  console.log("🔌 Yeni bağlantı:", socket.id);
-
-  socket.on("sendMessage", async (data) => {
-    try {
-      const yeniMesaj = new Message(data);
-      await yeniMesaj.save();
-
-      io.emit("receiveMessage", yeniMesaj); 
-      console.log("📩 Yeni mesaj:", yeniMesaj);
-    } catch (err) {
-      console.error("❌ Mesaj gönderme hatası:", err.message);
-    }
+  server.listen(env.PORT, () => {
+    logger.info({ port: env.PORT, env: env.NODE_ENV }, "Sunucu çalışıyor");
   });
 
-  socket.on("disconnect", () => {
-    console.log("❌ Kullanıcı ayrıldı:", socket.id);
-  });
+  let shuttingDown = false;
+
+  async function shutdown(signal) {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    logger.info({ signal }, "Sunucu kapatılıyor");
+
+    const forceExit = setTimeout(() => {
+      logger.error("Kapanış zaman aşımına uğradı");
+      process.exit(1);
+    }, SHUTDOWN_TIMEOUT_MS);
+    forceExit.unref();
+
+    io.close(async () => {
+      await disconnectDatabase();
+      logger.info("Sunucu kapandı");
+      process.exit(0);
+    });
+  }
+
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
+}
+
+process.on("unhandledRejection", (reason) => {
+  logger.error({ err: reason }, "Yakalanmamış promise reddi");
 });
 
-
-const PORT = process.env.PORT || 6398;
-server.listen(PORT, () => {
-  console.log(`Server çalışıyor: http://localhost:${PORT}`);
+start().catch((error) => {
+  logger.fatal({ err: error }, "Sunucu başlatılamadı");
+  process.exit(1);
 });

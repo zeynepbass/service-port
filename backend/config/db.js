@@ -1,18 +1,26 @@
+import mongoose from "mongoose";
+import { logger } from "./logger.js";
 
-import mongoose from 'mongoose'
-const Baglan = async () => {
-    const startTime = new Date();
-    try {
-        const conn = await mongoose.connect(process.env.MONGO_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        const endTime = new Date();
-        console.log(`MongoDB bağlantısı süresi: ${endTime - startTime} ms`);
-        console.log(`MONGO DB BAGLANDI --> ${conn.connection.name}`);
-    } catch (error) {
-        console.error('MongoDB bağlantı hatası:', error);
-    }
-};
+mongoose.set("strictQuery", true);
 
-export default Baglan;
+export async function connectDatabase(uri) {
+  mongoose.connection.on("disconnected", () => logger.warn("MongoDB bağlantısı koptu"));
+  mongoose.connection.on("reconnected", () => logger.info("MongoDB yeniden bağlandı"));
+  mongoose.connection.on("error", (error) => logger.error({ err: error }, "MongoDB hatası"));
+
+  const startedAt = Date.now();
+  await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
+  logger.info(
+    { db: mongoose.connection.name, durationMs: Date.now() - startedAt },
+    "MongoDB bağlantısı kuruldu",
+  );
+  return mongoose.connection;
+}
+
+export async function disconnectDatabase() {
+  await mongoose.disconnect();
+}
+
+export function isDatabaseReady() {
+  return mongoose.connection.readyState === 1;
+}

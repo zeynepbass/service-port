@@ -1,19 +1,21 @@
 import mongoose from "mongoose";
 
-const kullaniciSchema = new mongoose.Schema({
-  ad: { type: String},
-  soyad: { type: String},
-  email: { type: String },
-  parola: { type: String },
-  kullaniciAdi: { type: String },
-  rating:{ type: Number,default:0 },
-  comment:{ type: String,default:null },
-  resim: { type: String,default:null},
-  hesap: { type: String,default:true},
-  telefon: { type: String,default:null},
-  id:{type:String}
-});
+export const USER_ROLES = ["user", "admin"];
 
-const Kullanici = mongoose.model("Kullanici", kullaniciSchema);
+const userSchema = new mongoose.Schema(
+  {
+    firstName: { type: String, trim: true, required: true, maxlength: 50 },
+    lastName: { type: String, trim: true, required: true, maxlength: 50 },
+    email: { type: String, required: true, trim: true, lowercase: true, unique: true },
+    passwordHash: { type: String, required: true, select: false },
+    phone: { type: String, default: null },
+    avatar: { type: String, default: null },
+    role: { type: String, enum: USER_ROLES, default: "user" },
+    isActive: { type: Boolean, default: true },
+    ratingAverage: { type: Number, default: 0, min: 0, max: 5 },
+    ratingCount: { type: Number, default: 0, min: 0 },
+  },
+  { timestamps: true },
+);
 
-export default Kullanici; 
+export const User = mongoose.model("User", userSchema);
