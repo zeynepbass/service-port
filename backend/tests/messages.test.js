@@ -39,7 +39,9 @@ describe("socket kimlik doğrulama", () => {
   });
 
   it("sahte token ile bağlantıyı reddeder", async () => {
-    await expect(connectSocket(server.url, "access_token=sahte.token.degeri")).rejects.toThrow("UNAUTHORIZED");
+    await expect(connectSocket(server.url, "access_token=sahte.token.degeri")).rejects.toThrow(
+      "UNAUTHORIZED",
+    );
   });
 });
 
@@ -102,13 +104,16 @@ describe("mesaj gönderimi", () => {
 
     expect((await eve.agent.get(`/api/messages/conversations/${conversation.id}/messages`)).status).toBe(404);
     expect(
-      (await eve.agent.post(`/api/messages/conversations/${conversation.id}/messages`).send({ text: "x" })).status,
+      (await eve.agent.post(`/api/messages/conversations/${conversation.id}/messages`).send({ text: "x" }))
+        .status,
     ).toBe(404);
   });
 
   it("kendisiyle konuşma açılmasını engeller", async () => {
     const alice = await participant();
-    const response = await alice.agent.post("/api/messages/conversations").send({ recipientId: alice.user.id });
+    const response = await alice.agent
+      .post("/api/messages/conversations")
+      .send({ recipientId: alice.user.id });
     expect(response.status).toBe(400);
   });
 });
@@ -159,7 +164,9 @@ describe("konuşmalar", () => {
     const alice = await participant();
     const bob = await participant();
     const conversation = await openConversation(alice, bob);
-    await alice.agent.post(`/api/messages/conversations/${conversation.id}/messages`).send({ text: "eski mesaj" });
+    await alice.agent
+      .post(`/api/messages/conversations/${conversation.id}/messages`)
+      .send({ text: "eski mesaj" });
 
     expect((await bob.agent.delete(`/api/messages/conversations/${conversation.id}`)).status).toBe(204);
 
@@ -169,7 +176,9 @@ describe("konuşmalar", () => {
       (await alice.agent.get(`/api/messages/conversations/${conversation.id}/messages`)).body.data,
     ).toHaveLength(1);
 
-    await alice.agent.post(`/api/messages/conversations/${conversation.id}/messages`).send({ text: "yeni mesaj" });
+    await alice.agent
+      .post(`/api/messages/conversations/${conversation.id}/messages`)
+      .send({ text: "yeni mesaj" });
 
     const bobMessages = await bob.agent.get(`/api/messages/conversations/${conversation.id}/messages`);
     expect(bobMessages.body.data.map((message) => message.text)).toEqual(["yeni mesaj"]);

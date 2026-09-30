@@ -1,1 +1,0 @@
-export {Profilmage} from "./Profilmage"

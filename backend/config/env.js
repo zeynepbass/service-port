@@ -3,16 +3,16 @@ import { z } from "zod";
 
 dotenv.config({ quiet: true });
 
-const booleanString = z
-  .enum(["true", "false"])
-  .transform((value) => value === "true");
+const booleanString = z.enum(["true", "false"]).transform((value) => value === "true");
 
 const envSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     PORT: z.coerce.number().int().positive().default(6398),
     MONGO_URI: z.string({ error: "MONGO_URI zorunludur" }).min(1, "MONGO_URI zorunludur"),
-    JWT_ACCESS_SECRET: z.string({ error: "JWT_ACCESS_SECRET zorunludur" }).min(32, "JWT_ACCESS_SECRET en az 32 karakter olmalıdır"),
+    JWT_ACCESS_SECRET: z
+      .string({ error: "JWT_ACCESS_SECRET zorunludur" })
+      .min(32, "JWT_ACCESS_SECRET en az 32 karakter olmalıdır"),
     ACCESS_TOKEN_TTL_MINUTES: z.coerce.number().int().positive().default(15),
     REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
     PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().positive().default(30),

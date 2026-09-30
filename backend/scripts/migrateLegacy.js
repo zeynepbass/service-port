@@ -55,7 +55,13 @@ async function migrateUsers(db, report) {
           avatar: legacy.resim || null,
           isActive: !(legacy.hesap === false || legacy.hesap === "false"),
         },
-        $setOnInsert: { role: "user", ratingAverage: 0, ratingCount: 0, createdAt: legacy._id.getTimestamp(), updatedAt: new Date() },
+        $setOnInsert: {
+          role: "user",
+          ratingAverage: 0,
+          ratingCount: 0,
+          createdAt: legacy._id.getTimestamp(),
+          updatedAt: new Date(),
+        },
       },
       { upsert: true },
     );
@@ -143,10 +149,17 @@ async function migrateRequests(db, report) {
     const categoryId = await resolveCategoryId(legacy);
     const answers = (legacy.veriler ?? [])
       .filter((answer) => answer.kategoriIsim && answer.secilen)
-      .map((answer) => ({ question: answer.kategoriIsim, options: answer.secenekler ?? [], selected: answer.secilen }));
+      .map((answer) => ({
+        question: answer.kategoriIsim,
+        options: answer.secenekler ?? [],
+        selected: answer.secilen,
+      }));
 
     if (!ownerExists || !categoryId || answers.length === 0) {
-      report.skippedRequests.push({ id: legacy._id.toString(), reason: "sahip, kategori veya cevap bulunamadı" });
+      report.skippedRequests.push({
+        id: legacy._id.toString(),
+        reason: "sahip, kategori veya cevap bulunamadı",
+      });
       continue;
     }
 
@@ -246,7 +259,11 @@ export async function migrateLegacy(db = mongoose.connection.db) {
     skippedRequests: [],
   };
 
-  await Promise.all([User, Category, ServiceTemplate, ServiceRequest, Conversation, Message, Review].map((model) => model.init()));
+  await Promise.all(
+    [User, Category, ServiceTemplate, ServiceRequest, Conversation, Message, Review].map((model) =>
+      model.init(),
+    ),
+  );
 
   await migrateUsers(db, report);
   await migrateCategories(db, report);

@@ -2,8 +2,8 @@ import http from "node:http";
 import { io as connect } from "socket.io-client";
 import request from "supertest";
 import { createApp } from "../../app.js";
-import { createSocketServer } from "../../sockets/index.js";
 import { setSocketServer } from "../../sockets/emitter.js";
+import { createSocketServer } from "../../sockets/index.js";
 import { DEFAULT_PASSWORD } from "./factory.js";
 
 export async function startServer() {
@@ -25,8 +25,12 @@ export async function startServer() {
 
 export async function loginWithCookie(app, user) {
   const agent = request.agent(app);
-  const response = await agent.post("/api/auth/login").send({ email: user.email, password: DEFAULT_PASSWORD });
-  const cookie = response.headers["set-cookie"].find((entry) => entry.startsWith("access_token=")).split(";")[0];
+  const response = await agent
+    .post("/api/auth/login")
+    .send({ email: user.email, password: DEFAULT_PASSWORD });
+  const cookie = response.headers["set-cookie"]
+    .find((entry) => entry.startsWith("access_token="))
+    .split(";")[0];
   return { agent, cookie };
 }
 

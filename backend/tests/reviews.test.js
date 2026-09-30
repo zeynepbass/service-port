@@ -54,8 +54,12 @@ describe("değerlendirmeler", () => {
     const { target, authorAgent, requestId } = await chattingPair();
     const second = await createUser();
     const secondAgent = await loginAgent(app, second);
-    const conversation = await secondAgent.post("/api/messages/conversations").send({ recipientId: target.id });
-    await secondAgent.post(`/api/messages/conversations/${conversation.body.data.id}/messages`).send({ text: "Selam" });
+    const conversation = await secondAgent
+      .post("/api/messages/conversations")
+      .send({ recipientId: target.id });
+    await secondAgent
+      .post(`/api/messages/conversations/${conversation.body.data.id}/messages`)
+      .send({ text: "Selam" });
 
     await authorAgent.post("/api/reviews").send({ targetId: target.id, requestId, rating: 5 });
     await secondAgent.post("/api/reviews").send({ targetId: target.id, rating: 2 });
@@ -73,7 +77,9 @@ describe("değerlendirmeler", () => {
     const outsider = await createUser();
     const outsiderAgent = await loginAgent(app, outsider);
     const { category } = await createCategoryWithTemplate();
-    const unrelated = await outsiderAgent.post("/api/requests").send({ categoryId: category.id, answers: validAnswers() });
+    const unrelated = await outsiderAgent
+      .post("/api/requests")
+      .send({ categoryId: category.id, answers: validAnswers() });
 
     const response = await authorAgent
       .post("/api/reviews")
@@ -83,6 +89,8 @@ describe("değerlendirmeler", () => {
 
   it("puanı 1-5 aralığında doğrular", async () => {
     const { target, authorAgent } = await chattingPair();
-    expect((await authorAgent.post("/api/reviews").send({ targetId: target.id, rating: 6 })).status).toBe(400);
+    expect((await authorAgent.post("/api/reviews").send({ targetId: target.id, rating: 6 })).status).toBe(
+      400,
+    );
   });
 });

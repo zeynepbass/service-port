@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../app.js";
 import { uploadDirectory } from "../middleware/upload.js";
@@ -21,7 +20,10 @@ describe("PATCH /api/users/me", () => {
     const user = await createUser();
     const agent = await loginAgent(app, user);
 
-    const response = await agent.patch("/api/users/me").field("firstName", "Mehmet").field("phone", "+90 555 111 22 33");
+    const response = await agent
+      .patch("/api/users/me")
+      .field("firstName", "Mehmet")
+      .field("phone", "+90 555 111 22 33");
 
     expect(response.status).toBe(200);
     expect(response.body.data.firstName).toBe("Mehmet");
@@ -51,13 +53,17 @@ describe("PATCH /api/users/me", () => {
     const user = await createUser();
     const agent = await loginAgent(app, user);
 
-    const first = await agent.patch("/api/users/me").attach("avatar", PNG, { filename: "../../evil.png", contentType: "image/png" });
+    const first = await agent
+      .patch("/api/users/me")
+      .attach("avatar", PNG, { filename: "../../evil.png", contentType: "image/png" });
     expect(first.status).toBe(200);
     const firstFile = path.basename(first.body.data.avatar);
     expect(firstFile).toMatch(/^[0-9a-f-]{36}\.png$/);
     expect(fs.existsSync(path.join(uploadDirectory, firstFile))).toBe(true);
 
-    const second = await agent.patch("/api/users/me").attach("avatar", PNG, { filename: "yeni.png", contentType: "image/png" });
+    const second = await agent
+      .patch("/api/users/me")
+      .attach("avatar", PNG, { filename: "yeni.png", contentType: "image/png" });
     expect(second.status).toBe(200);
     expect(fs.existsSync(path.join(uploadDirectory, firstFile))).toBe(false);
   });
@@ -79,7 +85,10 @@ describe("PATCH /api/users/me", () => {
 
     const response = await agent
       .patch("/api/users/me")
-      .attach("avatar", Buffer.from("not really a png file"), { filename: "x.png", contentType: "image/png" });
+      .attach("avatar", Buffer.from("not really a png file"), {
+        filename: "x.png",
+        contentType: "image/png",
+      });
 
     expect(response.status).toBe(400);
     expect(fs.readdirSync(uploadDirectory).length).toBe(before);
@@ -90,7 +99,9 @@ describe("PATCH /api/users/me", () => {
     const agent = await loginAgent(app, user);
     const big = Buffer.concat([PNG, Buffer.alloc(5 * 1024 * 1024)]);
 
-    const response = await agent.patch("/api/users/me").attach("avatar", big, { filename: "big.png", contentType: "image/png" });
+    const response = await agent
+      .patch("/api/users/me")
+      .attach("avatar", big, { filename: "big.png", contentType: "image/png" });
     expect(response.status).toBe(400);
   });
 });

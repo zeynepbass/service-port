@@ -91,9 +91,7 @@ export function serializeRequest(request, { viewerId, includeContact = false } =
     endsAt: request.endsAt,
     createdAt: request.createdAt,
     isOwner: viewerId ? ownerId === viewerId.toString() : false,
-    contact: includeContact
-      ? { phone: request.phone ?? null, email: request.owner?.email ?? null }
-      : null,
+    contact: includeContact ? { phone: request.phone ?? null, email: request.owner?.email ?? null } : null,
   };
 }
 
@@ -116,7 +114,8 @@ export function serializeConversation(conversation, viewerId) {
   const lastMessage = conversation.lastMessage;
   const lastMessageVisible =
     lastMessage?.createdAt && (!state?.clearedAt || lastMessage.createdAt > state.clearedAt);
-  const request = conversation.request && conversation.request.title !== undefined ? conversation.request : null;
+  const request =
+    conversation.request && conversation.request.title !== undefined ? conversation.request : null;
 
   return {
     id: idOf(conversation),

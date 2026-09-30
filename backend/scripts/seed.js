@@ -20,7 +20,11 @@ export async function seed({ onlyIfEmpty = false, password = "Demo12345" } = {})
 
   const passwordHash = await hashPassword(password);
   for (const user of SEED_USERS) {
-    await User.updateOne({ email: user.email }, { $setOnInsert: { ...user, passwordHash } }, { upsert: true });
+    await User.updateOne(
+      { email: user.email },
+      { $setOnInsert: { ...user, passwordHash } },
+      { upsert: true },
+    );
   }
 
   return { categories: SEED_CATEGORIES.length, users: SEED_USERS.length };

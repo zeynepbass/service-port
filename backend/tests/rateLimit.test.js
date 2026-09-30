@@ -10,7 +10,8 @@ describe("auth rate limit", () => {
     process.env.AUTH_RATE_LIMIT_MAX = "3";
     const { createApp } = await import("../app.js");
     const app = createApp();
-    const attempt = () => request(app).post("/api/auth/login").send({ email: "a@example.com", password: "Parola123" });
+    const attempt = () =>
+      request(app).post("/api/auth/login").send({ email: "a@example.com", password: "Parola123" });
 
     for (let i = 0; i < 3; i += 1) {
       expect((await attempt()).status).toBe(401);

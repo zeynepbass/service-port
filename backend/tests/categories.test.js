@@ -42,7 +42,9 @@ describe("kategoriler", () => {
     const userAgent = await loginAgent(app, await createUser());
     const adminAgent = await loginAgent(app, await createUser({ role: "admin" }));
 
-    expect((await userAgent.put(`/api/categories/${category.slug}/template`).send({ steps })).status).toBe(403);
+    expect((await userAgent.put(`/api/categories/${category.slug}/template`).send({ steps })).status).toBe(
+      403,
+    );
 
     const saved = await adminAgent.put(`/api/categories/${category.slug}/template`).send({ steps });
     expect(saved.status).toBe(200);

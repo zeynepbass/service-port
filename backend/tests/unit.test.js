@@ -25,7 +25,11 @@ describe("ortam doğrulaması", () => {
   });
 
   it("CORS listesini ve üretimde secure çerezi varsayılan yapar", () => {
-    const env = parseEnv({ ...baseEnv, NODE_ENV: "production", CORS_ORIGINS: "https://a.com, https://b.com" });
+    const env = parseEnv({
+      ...baseEnv,
+      NODE_ENV: "production",
+      CORS_ORIGINS: "https://a.com, https://b.com",
+    });
     expect(env.CORS_ORIGINS).toEqual(["https://a.com", "https://b.com"]);
     expect(env.COOKIE_SECURE).toBe(true);
   });
@@ -40,7 +44,10 @@ describe("kaynak kod", () => {
         if (["node_modules", "tests", "coverage", "uploads"].includes(entry.name)) continue;
         const full = path.join(dir, entry.name);
         if (entry.isDirectory()) walk(full);
-        else if (entry.name.endsWith(".js") && /secretkey123|JWT_SECRET\s*\|\|/.test(fs.readFileSync(full, "utf8"))) {
+        else if (
+          entry.name.endsWith(".js") &&
+          /secretkey123|JWT_SECRET\s*\|\|/.test(fs.readFileSync(full, "utf8"))
+        ) {
           offenders.push(full);
         }
       }
@@ -99,7 +106,11 @@ describe("pagination", () => {
   });
 
   it("fazladan kaydı hasMore olarak işaretler", () => {
-    const docs = [{ _id: "64b000000000000000000003" }, { _id: "64b000000000000000000002" }, { _id: "64b000000000000000000001" }];
+    const docs = [
+      { _id: "64b000000000000000000003" },
+      { _id: "64b000000000000000000002" },
+      { _id: "64b000000000000000000001" },
+    ];
     const page = paginate(docs, 2);
     expect(page.items).toHaveLength(2);
     expect(page.meta.hasMore).toBe(true);

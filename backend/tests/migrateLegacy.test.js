@@ -1,11 +1,26 @@
 import mongoose from "mongoose";
-import { describe, expect, it } from "vitest";
-import { Category, Conversation, Message, Review, ServiceRequest, ServiceTemplate, User } from "../models/index.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+  Category,
+  Conversation,
+  Message,
+  Review,
+  ServiceRequest,
+  ServiceTemplate,
+  User,
+} from "../models/index.js";
 import { migrateLegacy } from "../scripts/migrateLegacy.js";
 import { seed } from "../scripts/seed.js";
 import { useTestDatabase } from "./helpers/db.js";
 
 useTestDatabase();
+
+beforeEach(async () => {
+  await mongoose.connection.db
+    .collection("legacy_messages")
+    .drop()
+    .catch(() => {});
+});
 
 async function insertLegacyData() {
   const db = mongoose.connection.db;
@@ -16,11 +31,22 @@ async function insertLegacyData() {
   await Message.collection.drop().catch(() => {});
 
   await db.collection("kullanicis").insertMany([
-    { _id: userA, ad: "Ali", soyad: "Veli", email: "Ali@Example.com", parola: "$2b$10$hash", hesap: "true", rating: 4, comment: "iyi" },
+    {
+      _id: userA,
+      ad: "Ali",
+      soyad: "Veli",
+      email: "Ali@Example.com",
+      parola: "$2b$10$hash",
+      hesap: "true",
+      rating: 4,
+      comment: "iyi",
+    },
     { _id: userB, ad: "Ayşe", soyad: "Kaya", email: "ayse@example.com", parola: "$2b$10$hash", hesap: false },
     { _id: new mongoose.Types.ObjectId(), kullaniciAdi: "misafir", parola: "$2b$10$hash" },
   ]);
-  await db.collection("kategoris").insertOne({ _id: categoryId, isim: "Boya Badana", resim: "https://x/y.jpg" });
+  await db
+    .collection("kategoris")
+    .insertOne({ _id: categoryId, isim: "Boya Badana", resim: "https://x/y.jpg" });
   await db.collection("tadilats").insertOne({
     kategori: categoryId,
     adimlar: [{ baslik: "Kaç oda?", secenekler: ["1", "2"], secilen: null }],
@@ -52,7 +78,14 @@ describe("legacy migration", () => {
 
     const report = await migrateLegacy();
 
-    expect(report).toMatchObject({ users: 2, categories: 1, templates: 1, requests: 1, messages: 2, legacyReviews: 1 });
+    expect(report).toMatchObject({
+      users: 2,
+      categories: 1,
+      templates: 1,
+      requests: 1,
+      messages: 2,
+      legacyReviews: 1,
+    });
     expect(report.skippedUsers).toHaveLength(1);
     expect(report.skippedRequests).toHaveLength(1);
 

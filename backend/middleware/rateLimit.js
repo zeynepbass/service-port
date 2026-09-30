@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import { rateLimit } from "express-rate-limit";
 import { env } from "../config/env.js";
 
 export const authRateLimit = rateLimit({

@@ -33,7 +33,10 @@ describe("talep oluşturma", () => {
       .send({ categoryId: category.id, answers: validAnswers(), ownerId: other.id });
     expect(spoofed.status).toBe(400);
 
-    const created = await createRequest(ownerAgent, category, { phone: "+905551112233", location: { lat: 41.01, lng: 28.97 } });
+    const created = await createRequest(ownerAgent, category, {
+      phone: "+905551112233",
+      location: { lat: 41.01, lng: 28.97 },
+    });
     expect(created.owner.id).toBe(owner.id);
     expect(created.status).toBe("active");
     expect(created.location).toEqual({ lat: 41.01, lng: 28.97 });
@@ -66,7 +69,9 @@ describe("kişisel verilerin korunması", () => {
     const { category, owner, ownerAgent, otherAgent } = await setup();
     await createRequest(ownerAgent, category, { phone: "+905551112233" });
 
-    const response = await otherAgent.get(`/api/requests?scope=others&category=${category.slug}&status=active`);
+    const response = await otherAgent.get(
+      `/api/requests?scope=others&category=${category.slug}&status=active`,
+    );
 
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(1);
@@ -83,8 +88,12 @@ describe("kişisel verilerin korunması", () => {
     const before = await otherAgent.get(`/api/requests/${created.id}`);
     expect(before.body.data.contact).toBeNull();
 
-    const conversation = await otherAgent.post("/api/messages/conversations").send({ recipientId: owner.id, requestId: created.id });
-    await otherAgent.post(`/api/messages/conversations/${conversation.body.data.id}/messages`).send({ text: "Merhaba" });
+    const conversation = await otherAgent
+      .post("/api/messages/conversations")
+      .send({ recipientId: owner.id, requestId: created.id });
+    await otherAgent
+      .post(`/api/messages/conversations/${conversation.body.data.id}/messages`)
+      .send({ text: "Merhaba" });
 
     const after = await otherAgent.get(`/api/requests/${created.id}`);
     expect(after.body.data.contact).toEqual({ phone: "+905551112233", email: owner.email });
@@ -100,8 +109,12 @@ describe("sahiplik", () => {
     const { category, ownerAgent, otherAgent } = await setup();
     const created = await createRequest(ownerAgent, category);
 
-    expect((await otherAgent.patch(`/api/requests/${created.id}`).send({ phone: "+905550000000" })).status).toBe(403);
-    expect((await otherAgent.patch(`/api/requests/${created.id}/status`).send({ status: "cancelled" })).status).toBe(403);
+    expect(
+      (await otherAgent.patch(`/api/requests/${created.id}`).send({ phone: "+905550000000" })).status,
+    ).toBe(403);
+    expect(
+      (await otherAgent.patch(`/api/requests/${created.id}/status`).send({ status: "cancelled" })).status,
+    ).toBe(403);
   });
 
   it("admin başkasının talebini yönetebilir", async () => {
@@ -149,7 +162,9 @@ describe("durum geçişleri", () => {
     expect(passive.body.data).toHaveLength(1);
     expect(passive.body.data[0]).toMatchObject({ status: "passive", isExpired: true });
 
-    const reactivate = await ownerAgent.patch(`/api/requests/${created.id}/status`).send({ status: "active" });
+    const reactivate = await ownerAgent
+      .patch(`/api/requests/${created.id}/status`)
+      .send({ status: "active" });
     expect(reactivate.status).toBe(422);
     expect(reactivate.body.error.code).toBe("REQUEST_EXPIRED");
 
@@ -171,7 +186,9 @@ describe("listeleme", () => {
     const first = await ownerAgent.get("/api/requests?scope=mine&limit=2");
     expect(first.body.data.map((item) => item.id)).toEqual([ids[2], ids[1]]);
 
-    const second = await ownerAgent.get(`/api/requests?scope=mine&limit=2&cursor=${first.body.meta.nextCursor}`);
+    const second = await ownerAgent.get(
+      `/api/requests?scope=mine&limit=2&cursor=${first.body.meta.nextCursor}`,
+    );
     expect(second.body.data.map((item) => item.id)).toEqual([ids[0]]);
 
     const oldest = await ownerAgent.get("/api/requests?scope=mine&sort=oldest&limit=1");
