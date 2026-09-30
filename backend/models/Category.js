@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
 
-const kategoriSchema = new mongoose.Schema({
-  resim: { type: String, required: true },
-  isim: { type: String, required: true },
-  aciklama: { type: String },
-});
+const categorySchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, maxlength: 80 },
+    slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    description: { type: String, default: null, maxlength: 500 },
+    image: { type: String, default: null },
+  },
+  { timestamps: true },
+);
 
-const Kategori = mongoose.model("Kategori", kategoriSchema);
+categorySchema.index({ name: 1 });
 
-export default Kategori; 
+export const Category = mongoose.model("Category", categorySchema);

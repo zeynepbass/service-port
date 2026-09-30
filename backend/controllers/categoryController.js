@@ -1,36 +1,29 @@
-import Kategori from "../models/Kategori.js";
+import * as categoryService from "../services/category.service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { created, noContent, ok } from "../utils/respond.js";
+import { serializeCategory } from "../utils/serializers.js";
 
+export const listCategories = asyncHandler(async (req, res) => {
+  const categories = await categoryService.listCategories();
+  ok(res, categories.map(serializeCategory));
+});
 
-export const createKategori = async (req, res) => {
-  try {
-    const { isim, aciklama, resim } = req.body;
+export const getCategory = asyncHandler(async (req, res) => {
+  const category = await categoryService.getCategoryByKey(req.params.key);
+  ok(res, serializeCategory(category));
+});
 
-    if (!isim) {
-      return res.status(400).json({ message: "Kategori ismi zorunludur!" });
-    }
+export const createCategory = asyncHandler(async (req, res) => {
+  const category = await categoryService.createCategory(req.body);
+  created(res, serializeCategory(category));
+});
 
-    const yeniKategori = new Kategori({
-      isim,
-      aciklama,
-      resim
-    });
+export const updateCategory = asyncHandler(async (req, res) => {
+  const category = await categoryService.updateCategory(req.params.key, req.body);
+  ok(res, serializeCategory(category));
+});
 
-    const kayit = await yeniKategori.save();
-    res.status(201).json(kayit);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Kategori eklenirken hata oluştu." });
-  }
-};
-export const getKategori=async(req,res)=>{
-
-    try {
-      const kategoriler = await Kategori.find(); 
-     
-      res.status(200).json(kategoriler);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "kategoriler alınamadı." });
-    }
-  
-}
+export const deleteCategory = asyncHandler(async (req, res) => {
+  await categoryService.deleteCategory(req.params.key);
+  noContent(res);
+});

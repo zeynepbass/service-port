@@ -1,20 +1,24 @@
 import mongoose from "mongoose";
 
-const stepSchema = new mongoose.Schema({
-  baslik: { type: String, required: true }, 
-  secenekler: [{ type: String }], 
-  secilen: { type: String, default: null }
-            
-});
+const stepSchema = new mongoose.Schema(
+  {
+    question: { type: String, required: true, trim: true },
+    options: { type: [String], required: true },
+  },
+  { _id: false },
+);
 
-const tadilatSchema = new mongoose.Schema({
-  kategori: { type: mongoose.Schema.Types.ObjectId, ref: "Kategori" },
-  adimlar: [stepSchema],                   
-  tarih: { type: Date, default: Date.now },
-  bitirmeTarihi: { type: Date, default: null },
-  durum: { type: String, enum: ["aktif", "pasif", "iptal"], default: "aktif" }
-});
+const serviceTemplateSchema = new mongoose.Schema(
+  {
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+      unique: true,
+    },
+    steps: { type: [stepSchema], required: true },
+  },
+  { timestamps: true },
+);
 
-const Tadilat = mongoose.model("Tadilat", tadilatSchema);
-
-export default Tadilat;
+export const ServiceTemplate = mongoose.model("ServiceTemplate", serviceTemplateSchema);
