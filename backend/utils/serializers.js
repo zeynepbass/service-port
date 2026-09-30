@@ -133,7 +133,8 @@ export function serializeConversation(conversation, viewerId) {
 export function serializeReview(review) {
   return {
     id: idOf(review),
-    author: serializePublicUser(review.author),
+    author: review.legacy ? null : serializePublicUser(review.author),
+    legacy: Boolean(review.legacy),
     targetId: idOf(review.target),
     requestId: idOf(review.request),
     rating: review.rating,
