@@ -1,98 +1,62 @@
-import { useRouter } from "next/navigation";
-import ToggleOnIcon from "@mui/icons-material/ToggleOn";
-import ToggleOffIcon from "@mui/icons-material/ToggleOff";
-import { Button } from "@/shared/components/atoms";
+import { ToggleLeft, ToggleRight } from "lucide-react";
+import Link from "next/link";
+import { formatDateRange } from "@/shared/utils/format";
+import { StatusBadge } from "../StatusBadge";
 
-export function HomeIsCard({ item, showText, handleSubmit }) {
-  const router = useRouter();
+export function MyRequestCard({ request, onToggle, isUpdating }) {
+  const isActive = request.status === "active";
+  const canToggle = request.status !== "cancelled" && !request.isExpired;
 
   return (
-    <div className="flex flex-col justify-between p-4  bg-white border border-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-      
-      <form onSubmit={(e) => handleSubmit(e, item._id)}>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg  text-gray-600">
-            {item.anaBaslik}
-          </h3>
-
-          <Button type="submit">
-            {showText[item._id] ? (
-              <ToggleOnIcon className="text-[rgb(34,44,49)]" />
-            ) : (
-              <ToggleOffIcon className="text-[rgb(242,247,250)]" />
-            )}
-          </Button>
-        </div>
-      </form>
-
-      {item.veriler?.map((veri, i) => (
-        <div
-          key={i}
-          className="mb-3 cursor-pointer"
-          onClick={() =>
-            router.push(`/hizmet/${item.primaryKey}`)
-          }
-        >
-          <p className=" text-gray-700">
-            {veri.kategoriIsim}: {veri.secilen}
-          </p>
-
-          <p className="text-sm text-gray-600 mt-1">
-            <span className="font-medium text-[rgb(78,36,77)]">
-              Seçenekler:
-            </span>{" "}
-            {veri.secenekler.join(", ")}
-          </p>
-        </div>
-      ))}
-
-      <div className="mt-4 pt-2 border-t border-gray-200 text-sm text-gray-600 space-y-1">
-        <p>
-          <span className="font-medium text-gray-700">
-            Telefon:
-          </span>{" "}
-          {item.telefonNo || "Belirtilmemiş"}
-        </p>
-
-        <p>
-          <span className="font-medium text-gray-700">
-            Konum:
-          </span>{" "}
-          {item.konum || "Belirtilmemiş"}
-        </p>
-
-        <p>
-          <span className="font-medium text-gray-700">
-            Durumu:
-          </span>{" "}
-          <span
-            className={
-              item.durum === "iptal"
-                ? "text-red-600 "
-                : item.durum === "aktif"
-                ? "text-[rgb(34,44,49)] "
-                : item.durum === "pasif"
-                ? "text-[rgb(34,44,49)]"
-                : "text-gray-400"
-            }
+    <article className="flex flex-col justify-between rounded-lg border border-gray-50 bg-white p-4 shadow-md transition-all duration-300 hover:shadow-lg">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-lg text-gray-600">
+          <Link href={`/hizmet/${request.id}`} className="hover:underline">
+            {request.title}
+          </Link>
+        </h3>
+        {canToggle && (
+          <button
+            type="button"
+            onClick={() => onToggle(request)}
+            disabled={isUpdating}
+            aria-pressed={isActive}
+            aria-label={isActive ? "Talebi pasife al" : "Talebi aktifleştir"}
+            className="text-[rgb(34,44,49)] disabled:opacity-50"
           >
-            {item.durum || "Belirtilmemiş"}
-          </span>
-        </p>
-
-        <p>
-          <span className="font-medium text-gray-700">
-            Süre:
-          </span>{" "}
-          {item.baslangicTarihi && item.bitisTarihi
-            ? `${new Date(
-                item.baslangicTarihi
-              ).toLocaleDateString("tr-TR")} - ${new Date(
-                item.bitisTarihi
-              ).toLocaleDateString("tr-TR")}`
-            : "süresiz"}
-        </p>
+            {isActive ? <ToggleRight size={28} aria-hidden="true" /> : <ToggleLeft size={28} aria-hidden="true" />}
+          </button>
+        )}
       </div>
-    </div>
+
+      <ul className="space-y-3">
+        {request.answers.map((answer) => (
+          <li key={answer.question} className="text-gray-700">
+            {answer.question}: {answer.selected}
+          </li>
+        ))}
+      </ul>
+
+      <dl className="mt-4 space-y-1 border-t border-gray-200 pt-2 text-sm text-gray-600">
+        <div className="flex gap-1">
+          <dt className="font-medium text-gray-700">Telefon:</dt>
+          <dd>{request.contact?.phone || "Belirtilmemiş"}</dd>
+        </div>
+        <div className="flex gap-1">
+          <dt className="font-medium text-gray-700">Konum:</dt>
+          <dd>{request.location ? "Eklendi" : "Belirtilmemiş"}</dd>
+        </div>
+        <div className="flex items-center gap-1">
+          <dt className="font-medium text-gray-700">Durumu:</dt>
+          <dd>
+            <StatusBadge status={request.status} isExpired={request.isExpired} />
+          </dd>
+        </div>
+        <div className="flex gap-1">
+          <dt className="font-medium text-gray-700">Süre:</dt>
+          <dd>{formatDateRange(request.startsAt, request.endsAt)}</dd>
+        </div>
+      </dl>
+    </article>
   );
 }

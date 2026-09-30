@@ -1,35 +1,26 @@
-export function ServiceOptions({ options }) {
-    return (
-      <ul className="list-none space-y-4">
-        <div className="flex flex-wrap gap-3">
-          <ul className="space-y-4 w-full">
-            {options?.map((item) => (
-              <li
-                key={item._id}
-                className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 rounded-lg shadow hover:shadow-md transition w-full"
-              >
-                <div className="flex flex-col">
-                  <span className=" text-gray-600">
-                    {item.kategoriIsim || "Kategori belirtilmemiş"}
-                  </span>
-  
-                  {Array.isArray(item.secenekler) &&
-                    item.secenekler.length > 0 && (
-                      <span className="text-gray-500 text-sm">
-                        Seçenekler: {item.secenekler.join(", ")}
-                      </span>
-                    )}
-                </div>
-  
-                <div className="flex items-center gap-4 mt-2 md:mt-0">
-                  <span className="font-medium text-[rgb(78,36,77)]">
-                    Seçilen: {item.secilen || "Yok"}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </ul>
-    );
-  }
+export function RequestAnswers({ answers = [], compact = false }) {
+  if (answers.length === 0) return null;
+
+  return (
+    <ul className={compact ? "space-y-2" : "space-y-4"}>
+      {answers.map((answer) => (
+        <li
+          key={answer.question}
+          className={
+            compact
+              ? "rounded-xl border border-gray-100 bg-[#FCFBFD] p-4"
+              : "flex w-full flex-col items-start justify-between rounded-lg bg-white p-4 shadow md:flex-row md:items-center"
+          }
+        >
+          <div className="flex flex-col">
+            <span className="text-sm text-gray-700">{answer.question}</span>
+            {answer.options?.length > 0 && (
+              <span className="text-xs text-gray-500">Seçenekler: {answer.options.join(", ")}</span>
+            )}
+          </div>
+          <span className="mt-2 text-sm font-medium text-[rgb(78,36,77)] md:mt-0">Seçilen: {answer.selected}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
