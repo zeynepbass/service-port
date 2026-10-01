@@ -35,6 +35,10 @@ export const clientEnv = {
 };
 
 export function getServerEnv() {
-  const values = parse(serverSchema, { API_INTERNAL_URL: process.env.API_INTERNAL_URL || undefined }, "sunucu");
+  const values = parse(
+    serverSchema,
+    { API_INTERNAL_URL: process.env.API_INTERNAL_URL || undefined },
+    "sunucu",
+  );
   return { apiInternalUrl: (values.API_INTERNAL_URL ?? clientEnv.apiUrl).replace(/\/$/, "") };
 }

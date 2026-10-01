@@ -1,150 +1,79 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { getCategory } from "@/features/category/api/category.api";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { Button } from "@/shared/components/atoms";
+import { EmptyState } from "@/shared/components/molecules";
+import { CategoryRequestCard } from "../components/CategoryRequestCard";
+import { useCategoryRequests } from "../hooks/useCategoryRequests";
 
-import { Heading } from "@/shared/components/atoms";
-import { KullaniciCard } from "../components/KullaniciCard";
-import { toDisplay } from "../helpers/toDisplay";
-import { filterTadilat } from "../utils/filter";
-import { useTadilat } from "../hooks/useUser";
+function RequestGridSkeleton() {
+  return (
+    <div
+      className="mt-8 grid animate-pulse grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      aria-hidden="true"
+    >
+      {["a", "b", "c"].map((key) => (
+        <div key={key} className="h-64 rounded-2xl border border-gray-200 bg-white" />
+      ))}
+    </div>
+  );
+}
 
-export default function Users({ isim }) {
+export default function CategoryRequestsPage({ slug }) {
   const router = useRouter();
+  const { data: category } = useQuery({
+    queryKey: queryKeys.category(slug),
+    queryFn: () => getCategory(slug),
+  });
+  const { requests, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useCategoryRequests(slug);
 
-  const [kullaniciStored, setKullaniciStored] = useState(null);
-  const [storedKullaniciAdi, setStoredKullaniciAdi] = useState(null);
-
-  const {
-    users,
-    tadilat,
-    isLoading,
-  } = useTadilat();
-
-  useEffect(() => {
-    const storedUser = JSON.parse(
-      localStorage.getItem("kullanici") || "null"
-    );
-
-    const storedName = localStorage.getItem("kullaniciAdi");
-
-    setKullaniciStored(storedUser);
-    setStoredKullaniciAdi(storedName);
-  }, []);
-
-  const filteredTadilat = filterTadilat(
-    tadilat,
-    isim,
-    storedKullaniciAdi,
-    kullaniciStored
-  );
-
-  const categoryTitle = toDisplay(
-    filteredTadilat[0]?.anaBaslik || isim
-  );
-
-  const handleMessage = (kullaniciId) => {
-    router.push(`/mesaj-kutusu/${kullaniciId}`);
-  };
-
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-[#F7F7F9] px-4 py-8 sm:px-6 lg:px-10">
-        <div className="mx-auto w-full max-w-7xl">
-          <div className="animate-pulse">
-            <div className="h-4 w-24 rounded bg-gray-200" />
-            <div className="mt-3 h-8 w-64 rounded bg-gray-200" />
-
-            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3].map((item) => (
-                <div
-                  key={item}
-                  className="h-64 rounded-2xl border border-gray-200 bg-white"
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </main>
-    );
+  function handleMessage(request) {
+    router.push(`/mesaj-kutusu?alici=${request.owner.id}&talep=${request.id}`);
   }
 
   return (
     <main className="min-h-screen bg-[#F7F7F9] px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto w-full max-w-7xl">
-
         <header className="mb-8">
-          <span className="text-sm font-medium text-[#6B4F6D]">
-            Hizmetler
-          </span>
-
-          <div className="mt-1 flex justify-start">
+          <span className="text-sm font-medium text-[#6B4F6D]">Hizmetler</span>
+          <div className="mt-1 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <Heading
-                title={categoryTitle}
-                className="text-2xl text-left  tracking-tight text-gray-800 sm:text-3xl"
-              />
-
-              <p className="mt-2 text-sm text-gray-500">
-                Bu kategoride hizmet veren kullanıcıları keşfet.
-              </p>
+              <h1 className="text-2xl tracking-tight text-gray-800 sm:text-3xl">{category?.name ?? ""}</h1>
+              <p className="mt-2 text-sm text-gray-500">Bu kategoride hizmet arayan kullanıcıları keşfet.</p>
             </div>
-
-            {filteredTadilat.length > 0 && (
-              <span className="w-fit rounded-full bg-[#EDE7F1] px-3 py-1.5 text-xs font-medium text-[#6B4F6D]">
-                {filteredTadilat.length} hizmet
+            {requests.length > 0 && (
+              <span className="rounded-full bg-[#EDE7F1] px-3 py-1.5 text-xs font-medium text-[#6B4F6D]">
+                {requests.length} talep
               </span>
             )}
           </div>
         </header>
 
-
-        {filteredTadilat.length > 0 ? (
-          <section>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[...filteredTadilat]
-                .reverse()
-                .map((slide) => (
-                  <KullaniciCard
-                    key={slide._id}
-                    slide={slide}
-                    onMessage={() =>
-                      handleMessage(slide.kullaniciId)
-                    }
-                  />
-                ))}
-            </div>
+        {isLoading ? (
+          <RequestGridSkeleton />
+        ) : requests.length > 0 ? (
+          <section aria-label="Talepler" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {requests.map((request) => (
+              <CategoryRequestCard key={request.id} request={request} onMessage={handleMessage} />
+            ))}
           </section>
         ) : (
-          <section className="flex min-h-[360px] items-center justify-center rounded-3xl border border-gray-200 bg-white">
-            <div className="px-6 text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EDE7F1]">
-                <span className="text-2xl text-[#6B4F6D]">
-                  —
-                </span>
-              </div>
-
-              <h2 className="mt-5 text-lg  text-gray-800">
-                Henüz hizmet bulunamadı
-              </h2>
-
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-400">
-                Bu kategoriye ait henüz yayınlanmış bir tadilat
-                hizmeti bulunmuyor.
-              </p>
-            </div>
+          <section className="rounded-3xl border border-gray-200 bg-white">
+            <EmptyState
+              title="Henüz talep bulunamadı"
+              description="Bu kategoriye ait henüz yayınlanmış bir hizmet talebi bulunmuyor."
+            />
           </section>
         )}
 
-
-        {filteredTadilat.length > 0 && (
-          <div className="mt-6 flex items-center gap-2 px-2 text-xs text-gray-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#B9A6BF]" />
-            <span>
-              İhtiyacına uygun hizmeti seçerek kullanıcıyla iletişime
-              geçebilirsin.
-            </span>
+        {hasNextPage && (
+          <div className="mt-6 flex justify-center">
+            <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} variant="ghost">
+              {isFetchingNextPage ? "Yükleniyor..." : "Daha fazla göster"}
+            </Button>
           </div>
         )}
       </div>

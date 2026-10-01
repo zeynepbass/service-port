@@ -1,31 +1,26 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
+import { Toaster } from "@/shared/providers/Toaster";
 import "./globals.css";
 
-import QueryProvider from "@/shared/providers/QueryProvider";
- const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin", "latin-ext"] });
 
 export const metadata = {
-  title: "Hizmet Kap"
+  title: { default: "Hizmet Kap", template: "%s | Hizmet Kap" },
+  description: "İhtiyacın olan hizmet için adım adım talep oluştur, hizmet verenlerle mesajlaş.",
 };
 
 export default function RootLayout({ children }) {
-
   return (
-    <html lang="en" >
-      <body
-        className={` ${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <QueryProvider>
+    <html lang="tr">
+      <body className={`${geistSans.variable} antialiased`}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:p-2"
+        >
+          İçeriğe geç
+        </a>
         {children}
-        </QueryProvider>
+        <Toaster />
       </body>
     </html>
   );

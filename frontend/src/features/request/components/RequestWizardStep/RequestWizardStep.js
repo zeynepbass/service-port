@@ -43,11 +43,18 @@ export function RequestWizardStep({
           aria-valuemax={100}
           aria-valuenow={Math.round(progressPercent)}
         >
-          <div className="h-full rounded-full bg-[#6B4F6D] transition-all duration-300" style={{ width: `${progressPercent}%` }} />
+          <div
+            className="h-full rounded-full bg-[#6B4F6D] transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
       </div>
 
-      <form onSubmit={onSubmit} noValidate className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+      <form
+        onSubmit={onSubmit}
+        noValidate
+        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8"
+      >
         <fieldset aria-describedby={errors.selected ? errorId : undefined}>
           <legend className="mb-6">
             <span className="block text-xs font-medium uppercase tracking-wide text-[#6B4F6D]">
@@ -68,7 +75,12 @@ export function RequestWizardStep({
                       : "border-gray-200 bg-white text-gray-600 hover:border-[#DCD0E3] hover:bg-[#FCFBFD]"
                   }`}
                 >
-                  <input type="radio" value={option} className="h-4 w-4 accent-[#6B4F6D]" {...register("selected")} />
+                  <input
+                    type="radio"
+                    value={option}
+                    className="h-4 w-4 accent-[#6B4F6D]"
+                    {...register("selected")}
+                  />
                   <span className="text-sm font-medium">{option}</span>
                 </label>
               );

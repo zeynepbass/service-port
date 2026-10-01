@@ -19,7 +19,13 @@ export function SettingsHeader({ onLogout, isLoggingOut }) {
       <div className="flex flex-col items-center sm:h-20 sm:flex-row sm:justify-between">
         <div className="border-b border-gray-200 bg-white px-4 py-4">
           <Link href="/ana-sayfa" className="flex items-center gap-3">
-            <Image src="/sidebarLogo.png" alt="" width={44} height={40} className="h-10 w-11 rounded-xl object-cover" />
+            <Image
+              src="/sidebarLogo.png"
+              alt=""
+              width={44}
+              height={40}
+              className="h-10 w-11 rounded-xl object-cover"
+            />
             <span>
               <span className="block text-lg text-[#4E244D]">Hizmet Kap</span>
               <span className="block text-xs text-gray-500">Hizmet yönetim platformu</span>

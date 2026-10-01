@@ -1,106 +1,38 @@
-
 "use client";
 
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "@/shared/api/client";
+import { deactivateAccount, deleteAccount } from "../api/user.api";
 
-import {
-  deleteAccount,
-  updateAccount,
-} from "@/feautures/feed/hooks/useDataPrivacy";
-
-export function useDataPrivacy  () {
+export function useAccountActions() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const [openIndex, setOpenIndex] = useState(null);
+  function signOut(message) {
+    queryClient.clear();
+    toast.success(message);
+    router.replace("/giris-yap");
+    router.refresh();
+  }
 
-  const updateAccountMutation = useMutation({
-    mutationFn: (userId) => updateAccount(userId, false),
-
-    onSuccess: (result) => {
-      if (result.success) {
-        localStorage.clear();
-        router.push("/");
-        return;
-      }
-
-      alert("Hesap durumu güncellenemedi");
-    },
-
-    onError: () => {
-      alert("Hesap durumu güncellenemedi");
-    },
+  const deactivate = useMutation({
+    mutationFn: deactivateAccount,
+    onSuccess: () => signOut("Hesabın donduruldu. Tekrar giriş yaparak aktifleştirebilirsin."),
+    onError: (error) => toast.error(getErrorMessage(error, "Hesap dondurulamadı")),
   });
 
-  const deleteAccountMutation = useMutation({
-    mutationFn: (userId) => deleteAccount(userId),
-
-    onSuccess: () => {
-      localStorage.clear();
-      router.push("/");
-    },
-
-    onError: () => {
-      alert("Hesap silinemedi");
-    },
+  const remove = useMutation({
+    mutationFn: deleteAccount,
+    onSuccess: () => signOut("Hesabın silindi."),
+    onError: (error) => toast.error(getErrorMessage(error, "Hesap silinemedi")),
   });
-
-  const toggle = (index) => {
-    setOpenIndex((prev) =>
-      prev === index ? null : index
-    );
-  };
-
-  const getUserId = () => {
-    const kullanici = JSON.parse(
-      localStorage.getItem("kullanici") || "null"
-    );
-
-    return kullanici?.kullanici?.id;
-  };
-
-  const handleDurumDegistir = () => {
-    const userId = getUserId();
-
-    if (!userId) {
-      alert("Kullanıcı bulunamadı");
-      return;
-    }
-
-    updateAccountMutation.mutate(userId);
-  };
-
-  const handleHesapSil = () => {
-    const userId = getUserId();
-
-    if (!userId) {
-      alert("Kullanıcı bulunamadı");
-      return;
-    }
-
-    deleteAccountMutation.mutate(userId);
-  };
-
-  const handleAction = () => {
-    if (openIndex === 0) {
-      handleDurumDegistir();
-    }
-
-    if (openIndex === 1) {
-      handleHesapSil();
-    }
-  };
 
   return {
-    openIndex,
-    toggle,
-    handleAction,
-    isLoading:
-      updateAccountMutation.isPending ||
-      deleteAccountMutation.isPending,
-    isUpdating: updateAccountMutation.isPending,
-    isDeleting: deleteAccountMutation.isPending,
+    deactivate: () => deactivate.mutate(),
+    remove: (password) => remove.mutate(password),
+    isDeactivating: deactivate.isPending,
+    isRemoving: remove.isPending,
   };
-};
-
+}

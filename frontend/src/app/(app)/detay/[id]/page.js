@@ -1,7 +1,9 @@
+import { notFound, redirect } from "next/navigation";
+import { serverGet } from "@/shared/api/server";
 
-import Request from "@/feautures/feed/pages/Request"
-export default async function page({ params }) {
+export default async function LegacyRequestWizardRedirect({ params }) {
   const { id } = await params;
-  return <Request id={id}/>
+  const { data, notFound: missing } = await serverGet(`/categories/${encodeURIComponent(id)}`);
+  if (missing || !data) notFound();
+  redirect(`/kategori/${data.slug}/talep-olustur`);
 }
-

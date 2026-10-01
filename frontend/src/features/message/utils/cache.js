@@ -22,7 +22,10 @@ export function removeConversation(queryClient, conversationId) {
 
 function mapPages(data, mapItems) {
   if (!data) return data;
-  return { ...data, pages: data.pages.map((page, index) => ({ ...page, items: mapItems(page.items, index) })) };
+  return {
+    ...data,
+    pages: data.pages.map((page, index) => ({ ...page, items: mapItems(page.items, index) })),
+  };
 }
 
 export function prependMessage(queryClient, conversationId, message) {

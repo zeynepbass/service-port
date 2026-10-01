@@ -1,4 +1,10 @@
 node_modules/
-.next
+.next/
 .env
-**/.env
+.env.local
+coverage/
+uploads/
+tests/.uploads/
+playwright-report/
+test-results/
+.DS_Store

@@ -1,8 +1,6 @@
+import { redirect } from "next/navigation";
 
-import Chatroom from "@/feautures/feed/pages/Chatroom";
-
-export default async function page({ params }) {
+export default async function LegacyChatRedirect({ params }) {
   const { id } = await params;
-
-  return <Chatroom id={id} />;
+  redirect(`/mesaj-kutusu?alici=${encodeURIComponent(id)}`);
 }

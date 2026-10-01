@@ -1,53 +1,34 @@
 "use client";
-import { useEffect, useState } from "react";
-import {Sidebar,Header,Settingsheader} from "@/shared/components/organism";
-import { usePathname, useRouter } from "next/navigation";
 
-export function Layout({ children }){
-  const pathname = usePathname();
-  const router = useRouter();
-  const [user, setUser] = useState(null);
+import { BriefcaseBusiness, MessageSquareText } from "lucide-react";
+import { useSession } from "@/features/auth/hooks/useSession";
+import { useCategories } from "@/features/category/hooks/useCategories";
+import { useConversations } from "@/features/message/hooks/useConversations";
+import { useMessageEvents } from "@/features/message/hooks/useMessageEvents";
+import { AccountSummary } from "@/features/user/components/AccountSummary";
+import { Sidebar } from "@/shared/components/organisms";
 
-  useEffect(() => {
-    const stored = localStorage.getItem("kullanici") || localStorage.getItem("kullaniciAdi");
+export function AppShell({ children }) {
+  const { user } = useSession();
+  const { categories } = useCategories();
+  const { unreadTotal } = useConversations();
+  useMessageEvents(user?.id);
 
-    if (stored) {
-      setUser(stored);
-    } else {
-      router.push("/");
-    }
-  }, [router]);
-
-  const isLoginPage =
-    pathname === "/" ||
-    pathname === "/kullanici-adi-giris" ||
-    pathname === "/sifremi-unuttum" ||
-    pathname === "/kayit-ol";
-
-  const settingsPaths = [
-    "/hesap-bilgilerim",
-    "/veri-gizliligi"
+  const navItems = [
+    { label: "İşlerim", href: "/ana-sayfa", icon: BriefcaseBusiness },
+    { label: "Mesaj Kutusu", href: "/mesaj-kutusu", icon: MessageSquareText, badge: unreadTotal },
   ];
-  const isSettingsPage = settingsPaths.includes(pathname);
-
-  if (isLoginPage) return <>{children}</>;
-  if (isSettingsPage) return <><Settingsheader />{children}</>;
 
   return (
-    <div className="grid grid-cols-12 h-screen overflow-hidden ">
-
-      <div className="col-span-12 lg:col-span-3 md:col-span-4  lg:h-[100vh] md:h-[50vh] bg-gray-100 overflow-auto">
-        <Sidebar />
+    <div className="grid h-screen grid-cols-12 overflow-hidden">
+      <div className="col-span-12 overflow-auto bg-gray-100 md:col-span-4 md:h-[50vh] lg:col-span-3 lg:h-screen">
+        <Sidebar navItems={navItems} categories={categories} account={<AccountSummary />} />
       </div>
-
-      <div className="col-span-12 lg:col-span-9 md:col-span-8 flex flex-col h-full overflow-auto">
-        <Header />
-        <main className="flex-1 overflow-auto">
+      <div className="col-span-12 flex h-full flex-col overflow-auto md:col-span-8 lg:col-span-9">
+        <main id="main-content" className="flex-1 overflow-auto">
           {children}
         </main>
       </div>
     </div>
   );
-};
-
-
+}

@@ -1,136 +1,67 @@
-
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/shared/api/client";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { updateProfile } from "../api/user.api";
+import { profileSchema, validateAvatar } from "../utils/schemas";
 
-import { updateAccountInfo as updateHesap } from  "../api/user.api";
+function defaultsFrom(user) {
+  return {
+    firstName: user?.firstName ?? "",
+    lastName: user?.lastName ?? "",
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
+  };
+}
 
-export function useAccount () {
-  const [form, setForm] = useState({
-    ad: "",
-    soyad: "",
-    email: "",
-  });
-
-  const [telefon, setTelefon] = useState("");
-  const [resim, setResim] = useState(null);
+export function useProfileForm(user) {
+  const queryClient = useQueryClient();
+  const [avatarFile, setAvatarFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [kullaniciStorage, setKullaniciStore] = useState(null);
+  const [avatarError, setAvatarError] = useState(null);
+  const form = useForm({ resolver: zodResolver(profileSchema), values: defaultsFrom(user) });
 
-  useEffect(() => {
-    const store = JSON.parse(
-      localStorage.getItem("kullanici") || "null"
-    );
+  useEffect(() => () => preview && URL.revokeObjectURL(preview), [preview]);
 
-    setKullaniciStore(store);
-
-    if (store) {
-      setForm({
-        ad: store.ad || "",
-        soyad: store.soyad || "",
-        email: store.email || "",
-      });
-
-      setTelefon(store.telefon || "");
-      setPreview(store.resim || null);
-    }
-  }, []);
-
-  const updateAccountMutation = useMutation({
-    mutationFn: ({ id, formData }) =>
-      updateHesap(id, formData),
-
-    onSuccess: (res) => {
-      toast.success("Bilgiler başarıyla güncellendi!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      const kullanici = {
-        ...res.data.kullanici,
-        id: res.data.kullanici._id,
-      };
-
-      localStorage.setItem(
-        "kullanici",
-        JSON.stringify(kullanici)
-      );
-
-      setKullaniciStore(kullanici);
+  const mutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.session, updated);
+      setAvatarFile(null);
+      setPreview(null);
+      toast.success("Bilgiler başarıyla güncellendi!");
     },
-
-    onError: (error) => {
-      console.error(error);
-
-      toast.error(
-        "Sunucu hatası veya güncelleme başarısız!",
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
-    },
+    onError: (error) => toast.error(getErrorMessage(error, "Güncelleme başarısız")),
   });
 
-  const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-
+  function selectAvatar(event) {
+    const file = event.target.files?.[0];
     if (!file) return;
-
-    setResim(file);
+    const error = validateAvatar(file);
+    setAvatarError(error);
+    if (error) return;
+    setAvatarFile(file);
     setPreview(URL.createObjectURL(file));
-  };
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const id = kullaniciStorage?.id;
-
-    if (!id) {
-      toast.error("Kullanıcı bulunamadı!");
-      return;
-    }
-
+  const onSubmit = form.handleSubmit((values) => {
     const formData = new FormData();
-
-    formData.append("ad", form.ad);
-    formData.append("soyad", form.soyad);
-    formData.append("email", form.email);
-    formData.append("telefon", telefon);
-
-    if (resim) {
-      formData.append("resim", resim);
-    }
-
-    updateAccountMutation.mutate({
-      id,
-      formData,
-    });
-  };
+    Object.entries(values).forEach(([key, value]) => formData.append(key, value ?? ""));
+    if (avatarFile) formData.append("avatar", avatarFile);
+    mutation.mutate(formData);
+  });
 
   return {
     form,
-    telefon,
-    resim,
-    preview,
-    kullaniciStorage,
-
-    setTelefon,
-
-    handleChange,
-    handleFileChange,
-    handleSubmit,
-
-    isLoading: updateAccountMutation.isPending,
+    onSubmit,
+    selectAvatar,
+    avatarSrc: preview ?? user?.avatar ?? null,
+    avatarError,
+    isSaving: mutation.isPending,
   };
-};
-
+}

@@ -1,6 +1,8 @@
+import LoginPage from "@/features/auth/pages/LoginPage";
 
-import Login from "@/feautures/user/pages/Login"
-export default function page() {
-  return <Login/>
+export const metadata = { title: "Giriş yap" };
+
+export default async function Page({ searchParams }) {
+  const { next } = await searchParams;
+  return <LoginPage nextPath={typeof next === "string" ? next : undefined} />;
 }
-

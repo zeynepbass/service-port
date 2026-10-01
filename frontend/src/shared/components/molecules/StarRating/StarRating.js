@@ -17,7 +17,7 @@ export function StarRating({ value, onChange, label = "Puan" }) {
   }
 
   return (
-    <div role="radiogroup" aria-label={label} className="flex justify-center gap-1" onKeyDown={handleKeyDown}>
+    <div role="radiogroup" aria-label={label} className="flex justify-center gap-1">
       {STARS.map((star) => {
         const selected = star === value;
         const filled = star <= value;
@@ -30,6 +30,7 @@ export function StarRating({ value, onChange, label = "Puan" }) {
             aria-label={`${star} yıldız`}
             tabIndex={selected || (value === 0 && star === 1) ? 0 : -1}
             onClick={() => onChange(star)}
+            onKeyDown={handleKeyDown}
             className="rounded p-1 text-[#6B4F6D] transition hover:text-[#4E244D] focus-visible:outline-2 focus-visible:outline-[#6B4F6D]"
           >
             <Star size={28} aria-hidden="true" fill={filled ? "currentColor" : "none"} />

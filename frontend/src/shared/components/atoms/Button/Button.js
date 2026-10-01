@@ -13,7 +13,10 @@ const variants = {
 };
 
 export function Button({ children, type = "button", className = "", variant = "unstyled", ...props }) {
-  const variantClassName = variants[variant] ?? variants.unstyled;
+  const baseClassName = variants[variant] ?? variants.unstyled;
+  const variantClassName = /(^|\s)w-/.test(className)
+    ? baseClassName.replace(/(^|\s)w-full(?=\s|$)/, "")
+    : baseClassName;
 
   return (
     <button type={type} className={[variantClassName, className].filter(Boolean).join(" ")} {...props}>

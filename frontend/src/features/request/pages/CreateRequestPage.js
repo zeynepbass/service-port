@@ -1,73 +1,68 @@
-
 "use client";
 
-import { RequestForm } from "../components/RequestForm";
-import { RequestSuccess } from "../components/RequestSuccess";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { getTemplate } from "@/features/category/api/category.api";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { EmptyState, Loading } from "@/shared/components/molecules";
 import { RequestExitModal } from "../components/RequestExitModal";
-import { useRequest } from "../hooks/useRequest";
-import { Loading } from "@/shared/components/molecules";
+import { RequestSuccess } from "../components/RequestSuccess";
+import { RequestWizardStep } from "../components/RequestWizardStep";
+import { useChangeRequestStatus } from "../hooks/useChangeRequestStatus";
+import { useRequestWizard } from "../hooks/useRequestWizard";
 
-export default function Request({ id }) {
+export default function CreateRequestPage({ slug }) {
+  const router = useRouter();
+  const [showExit, setShowExit] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
   const {
-    open,
-    dialog,
-    currentStep,
-    answers,
-    showRequestExitModal,
-
-    steps,
-    item,
-    storedData,
-
-    progressPercent,
-
+    data: template,
     isLoading,
+    isError,
+  } = useQuery({
+    queryKey: queryKeys.template(slug),
+    queryFn: () => getTemplate(slug),
+  });
+  const wizard = useRequestWizard(template);
+  const { changeStatusAsync, pendingId } = useChangeRequestStatus();
 
-    handleAnswer,
-    handleBack,
-    handleNext,
-    handleClick,
-    handleClose,
-    handleExit,
+  if (isLoading) return <Loading />;
+  if (isError || !wizard.step) {
+    return <EmptyState title="Bu hizmet için talep formu bulunamadı" />;
+  }
 
-    setShowRequestExitModal,
-  } = useRequest(id);
-
-  if (isLoading) {
-    return<Loading/>
+  if (wizard.createdRequest) {
+    const request = wizard.createdRequest;
+    return (
+      <RequestSuccess
+        request={request}
+        isCancelled={cancelled}
+        isCancelling={pendingId === request.id}
+        onCancel={() => changeStatusAsync(request.id, "cancelled").then(() => setCancelled(true))}
+      />
+    );
   }
 
   return (
-    <div className="w-full justify-center">
-      {open ? (
-        <RequestSuccess
-          dialog={dialog}
-          handleClose={handleClose}
-          handleClick={handleClick}
-          storedData={storedData}
-        />
-      ) : (
-        <RequestForm
-          item={item}
-          steps={steps}
-          currentStep={currentStep}
-          answers={answers}
-          progressPercent={progressPercent}
-          handleAnswer={handleAnswer}
-          handleNext={handleNext}
-          handleBack={handleBack}
-          setShowExitModal={setShowRequestExitModal}
-        />
-      )}
-
+    <div className="w-full">
+      <RequestWizardStep
+        categoryName={template.category.name}
+        step={wizard.step}
+        stepIndex={wizard.currentStep}
+        totalSteps={wizard.totalSteps}
+        progressPercent={wizard.progressPercent}
+        form={wizard.form}
+        onSubmit={wizard.submitStep}
+        onBack={wizard.goBack}
+        onExit={() => setShowExit(true)}
+        isSubmitting={wizard.isSubmitting}
+      />
       <RequestExitModal
-        open={showRequestExitModal}
-        onClose={() =>
-          setShowRequestExitModal(false)
-        }
-        onExit={handleExit}
+        open={showExit}
+        onClose={() => setShowExit(false)}
+        onExit={() => router.push("/ana-sayfa")}
       />
     </div>
   );
 }
-

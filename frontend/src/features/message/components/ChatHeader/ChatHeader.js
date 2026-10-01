@@ -19,7 +19,11 @@ export function ChatHeader({ conversation, onReview, onDelete }) {
   return (
     <header className="flex h-[72px] shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6">
       <div className="flex items-center gap-3">
-        <Avatar src={conversation.otherUser?.avatar} name={name} fallback={initials(conversation.otherUser)} />
+        <Avatar
+          src={conversation.otherUser?.avatar}
+          name={name}
+          fallback={initials(conversation.otherUser)}
+        />
         <div>
           <h2 className="text-sm text-[#222C31]">{name}</h2>
           <p className="text-xs text-gray-500">{conversation.request?.title ?? "Mesajlaşma"}</p>

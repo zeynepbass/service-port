@@ -1,0 +1,73 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo-test:
+    image: mongo:7
+    profiles: ["test"]
+    ports:
+      - "27018:27017"
+    tmpfs:
+      - /data/db
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 6398
+      MONGO_URI: mongodb://mongo:27017/hizmet-kap
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-local-development-secret-change-me-0123456789}
+      CLIENT_URL: http://localhost:${FRONTEND_PORT:-3000}
+      CORS_ORIGINS: http://localhost:${FRONTEND_PORT:-3000}
+      COOKIE_SECURE: "false"
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      AUTH_RATE_LIMIT_MAX: ${AUTH_RATE_LIMIT_MAX:-50}
+      SEED_PASSWORD: ${SEED_PASSWORD:-Demo12345}
+    ports:
+      - "6398:6398"
+    volumes:
+      - uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:6398
+        NEXT_PUBLIC_SOCKET_URL: http://localhost:6398
+        API_INTERNAL_URL: http://backend:6398
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      API_INTERNAL_URL: http://backend:6398
+      NEXT_PUBLIC_API_URL: http://localhost:6398
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+
+volumes:
+  mongo-data:
+  uploads:

@@ -13,7 +13,10 @@ export function RegisterForm({ form, onSubmit, isLoading }) {
   return (
     <form onSubmit={onSubmit} noValidate className="flex w-full flex-col gap-4">
       <div className="mb-3">
-        <Heading title="Kayıt Ol" desc="Kayıt olarak Gizlilik Politikası ve Kullanım Şartlarını kabul etmiş olursunuz." />
+        <Heading
+          title="Kayıt Ol"
+          desc="Kayıt olarak Gizlilik Politikası ve Kullanım Şartlarını kabul etmiş olursunuz."
+        />
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">

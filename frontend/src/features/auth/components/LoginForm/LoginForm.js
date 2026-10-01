@@ -38,7 +38,10 @@ export function LoginForm({ form, onSubmit, isLoading }) {
       />
 
       <div className="mt-1 flex items-center justify-between gap-4">
-        <Link href="/sifremi-unuttum" className="text-sm text-gray-500 transition-colors hover:text-[rgb(78,36,77)]">
+        <Link
+          href="/sifremi-unuttum"
+          className="text-sm text-gray-500 transition-colors hover:text-[rgb(78,36,77)]"
+        >
           Şifremi unuttum
         </Link>
         <Link href="/kayit-ol" className="text-sm text-gray-500 transition-colors hover:text-[rgb(78,36,77)]">

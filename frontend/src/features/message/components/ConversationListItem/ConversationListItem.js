@@ -14,7 +14,11 @@ export function ConversationListItem({ conversation, selected, onSelect }) {
           selected ? "bg-[#EDE7F1] text-[#4E244D]" : "text-[#222C31] hover:bg-[#F7F7F9]"
         }`}
       >
-        <Avatar src={conversation.otherUser?.avatar} name={name} fallback={initials(conversation.otherUser)} />
+        <Avatar
+          src={conversation.otherUser?.avatar}
+          name={name}
+          fallback={initials(conversation.otherUser)}
+        />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-medium">{name}</span>
           <span className="mt-0.5 block truncate text-xs text-gray-500">

@@ -15,7 +15,9 @@ export function SidebarNav({ items, pathname, categories }) {
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
                   className={`flex items-center gap-3 rounded-xl px-3.5 py-3 transition-all duration-200 ${
-                    isActive ? "bg-[#EDE7F1] text-[#4E244D]" : "text-gray-600 hover:bg-white hover:text-[#4E244D]"
+                    isActive
+                      ? "bg-[#EDE7F1] text-[#4E244D]"
+                      : "text-gray-600 hover:bg-white hover:text-[#4E244D]"
                   }`}
                 >
                   <span

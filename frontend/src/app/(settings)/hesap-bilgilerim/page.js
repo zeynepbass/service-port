@@ -1,8 +1,7 @@
+import ProfilePage from "@/features/user/pages/ProfilePage";
 
-import Profile from "@/feautures/user/pages/Profile"
-export default function page() {
-  return <Profile/>
+export const metadata = { title: "Hesap bilgilerim" };
 
+export default function Page() {
+  return <ProfilePage />;
 }
-
-
