@@ -4,7 +4,12 @@ import { ContactFieldCard } from "./ContactFieldCard";
 
 export function PhoneField({ registration, error }) {
   return (
-    <ContactFieldCard icon={Phone} iconClassName="bg-[#EDE7F1] text-[#6B4F6D]" label="Telefon" labelId="contact-phone-label">
+    <ContactFieldCard
+      icon={Phone}
+      iconClassName="bg-[#EDE7F1] text-[#6B4F6D]"
+      label="Telefon"
+      labelId="contact-phone-label"
+    >
       <Input
         type="tel"
         autoComplete="tel"

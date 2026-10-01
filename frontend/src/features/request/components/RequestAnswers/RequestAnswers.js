@@ -18,7 +18,9 @@ export function RequestAnswers({ answers = [], compact = false }) {
               <span className="text-xs text-gray-500">Seçenekler: {answer.options.join(", ")}</span>
             )}
           </div>
-          <span className="mt-2 text-sm font-medium text-[rgb(78,36,77)] md:mt-0">Seçilen: {answer.selected}</span>
+          <span className="mt-2 text-sm font-medium text-[rgb(78,36,77)] md:mt-0">
+            Seçilen: {answer.selected}
+          </span>
         </li>
       ))}
     </ul>

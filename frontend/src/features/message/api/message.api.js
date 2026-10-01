@@ -11,7 +11,9 @@ export async function openConversation(values) {
 }
 
 export async function listMessages(conversationId, cursor) {
-  return unwrapPage(await apiClient.get(`${BASE}/${conversationId}/messages`, { params: { cursor, limit: 30 } }));
+  return unwrapPage(
+    await apiClient.get(`${BASE}/${conversationId}/messages`, { params: { cursor, limit: 30 } }),
+  );
 }
 
 export async function sendMessage(conversationId, text) {

@@ -39,7 +39,9 @@ export function CategoryRequestCard({ request, onMessage }) {
             <p className="text-xs font-medium uppercase tracking-wide text-[#6B4F6D]">Kategori</p>
             <h3 className="mt-1 text-sm text-[#222C31]">{request.title}</h3>
           </div>
-          <span className="rounded-full bg-[#EDE7F1] px-3 py-1 text-xs font-medium text-[#6B4F6D]">Hizmet</span>
+          <span className="rounded-full bg-[#EDE7F1] px-3 py-1 text-xs font-medium text-[#6B4F6D]">
+            Hizmet
+          </span>
         </div>
 
         <div className="mb-5 rounded-xl bg-[#FCFBFD] p-4">

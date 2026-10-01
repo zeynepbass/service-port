@@ -5,7 +5,14 @@ import { EndDateField } from "./EndDateField";
 import { LocationField } from "./LocationField";
 import { PhoneField } from "./PhoneField";
 
-export function RequestContactForm({ form, onSubmit, onDetectLocation, onClearLocation, isLocating, isSaving }) {
+export function RequestContactForm({
+  form,
+  onSubmit,
+  onDetectLocation,
+  onClearLocation,
+  isLocating,
+  isSaving,
+}) {
   const {
     register,
     watch,

@@ -14,14 +14,16 @@ export function RequestSuccess({ request, onCancel, isCancelling, isCancelled })
           </span>
         </div>
 
-        <h1 className="mt-5 text-2xl tracking-tight text-[#222C31]" role="status">
-          {isCancelled ? "Talebin iptal edildi" : "Talebini Aldık"}
-        </h1>
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
-          {isCancelled
-            ? "Dilediğin zaman yeni bir talep oluşturabilirsin."
-            : "Talebin başarıyla oluşturuldu. Hizmet verenler sana mesaj kutusundan ulaşabilir."}
-        </p>
+        <div role="status">
+          <h1 className="mt-5 text-2xl tracking-tight text-[#222C31]">
+            {isCancelled ? "Talebin iptal edildi" : "Talebini Aldık"}
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
+            {isCancelled
+              ? "Dilediğin zaman yeni bir talep oluşturabilirsin."
+              : "Talebin başarıyla oluşturuldu. Hizmet verenler sana mesaj kutusundan ulaşabilir."}
+          </p>
+        </div>
 
         <Link
           href={`/hizmet/${request.id}`}
@@ -31,7 +33,13 @@ export function RequestSuccess({ request, onCancel, isCancelling, isCancelled })
         </Link>
 
         <div className="mx-auto mt-8 flex h-52 items-center justify-center overflow-hidden rounded-2xl bg-[#FCFBFD]">
-          <Image src="/2769497.png" alt="" width={260} height={200} className="h-full w-auto object-contain p-5" />
+          <Image
+            src="/2769497.png"
+            alt=""
+            width={260}
+            height={200}
+            className="h-full w-auto object-contain p-5"
+          />
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">

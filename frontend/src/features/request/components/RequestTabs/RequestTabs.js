@@ -15,7 +15,11 @@ export function RequestTabs({ tabs, activeKey, onChange, panelId }) {
   }
 
   return (
-    <div role="tablist" aria-label="İşlerim" className="mb-4 flex flex-col justify-center gap-2 px-4 sm:flex-row sm:gap-4 sm:px-0">
+    <div
+      role="tablist"
+      aria-label="İşlerim"
+      className="mb-4 flex flex-col justify-center gap-2 px-4 sm:flex-row sm:gap-4 sm:px-0"
+    >
       {tabs.map((tab, index) => {
         const selected = tab.key === activeKey;
         return (

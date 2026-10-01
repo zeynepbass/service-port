@@ -12,7 +12,13 @@ export function Avatar({ src, name = "", fallback, size = "sm", className = "" }
   if (src) {
     return (
       <span className={base}>
-        <Image src={src} alt={name ? `${name} profil fotoğrafı` : "Profil fotoğrafı"} width={pixels} height={pixels} className="h-full w-full object-cover" />
+        <Image
+          src={src}
+          alt={name ? `${name} profil fotoğrafı` : "Profil fotoğrafı"}
+          width={pixels}
+          height={pixels}
+          className="h-full w-full object-cover"
+        />
       </span>
     );
   }

@@ -1,7 +1,7 @@
+import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 
-import Forgotpassword from "@/feautures/user/pages/Forgotpassword"
-export default function page() {
-  return <Forgotpassword/>
+export const metadata = { title: "Şifremi unuttum" };
+
+export default function Page() {
+  return <ForgotPasswordPage />;
 }
-
-

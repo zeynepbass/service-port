@@ -1,6 +1,7 @@
+import DataPrivacyPage from "@/features/user/pages/DataPrivacyPage";
 
-import Dataprivacy from "@/feautures/feed/pages/Dataprivacy"
-export default function page() {
-  return <Dataprivacy/>
+export const metadata = { title: "Veri gizliliği" };
+
+export default function Page() {
+  return <DataPrivacyPage />;
 }
-

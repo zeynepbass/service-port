@@ -32,7 +32,12 @@ export function MessageComposer({ form, onSubmit, disabled }) {
             </p>
           )}
         </div>
-        <Button type="submit" variant="primary" disabled={disabled} className="h-11 w-auto min-w-[110px] px-5">
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={disabled}
+          className="h-11 w-auto min-w-[110px] px-5"
+        >
           Gönder
         </Button>
       </form>

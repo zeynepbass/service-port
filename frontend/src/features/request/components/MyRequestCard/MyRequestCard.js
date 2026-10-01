@@ -24,7 +24,11 @@ export function MyRequestCard({ request, onToggle, isUpdating }) {
             aria-label={isActive ? "Talebi pasife al" : "Talebi aktifleştir"}
             className="text-[rgb(34,44,49)] disabled:opacity-50"
           >
-            {isActive ? <ToggleRight size={28} aria-hidden="true" /> : <ToggleLeft size={28} aria-hidden="true" />}
+            {isActive ? (
+              <ToggleRight size={28} aria-hidden="true" />
+            ) : (
+              <ToggleLeft size={28} aria-hidden="true" />
+            )}
           </button>
         )}
       </div>

@@ -1,84 +1,65 @@
-
 "use client";
 
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useConversations } from "@/features/message/hooks/useConversations";
+import { EmptyState, Loading } from "@/shared/components/molecules";
+import { RequestAnswers } from "../components/RequestAnswers";
+import { RequestContactForm } from "../components/RequestContactForm";
+import { RequestConversations } from "../components/RequestConversations";
+import { RequestDetails } from "../components/RequestDetails";
+import { useRequestContactForm } from "../hooks/useRequestContactForm";
+import { useRequestDetail } from "../hooks/useRequestDetail";
 
-import { Button } from "@/shared/components/atoms";
-
-import { ServiceContactForm } from "../components/ServiceContactForm";
-import { ServiceDetails } from "../components/ServiceDetails";
-import { ServiceOptions } from "../components/ServiceOptions";
-import { ServiceMessageUsers } from "../components/ServiceMessageUsers";
-
-import { useService } from "../hooks/useService";
-import { Loading } from "@/shared/components/molecules";
-
-export default function Service({ paramsId }) {
-  const {
-    storedData,
-    filteredData,
-
-    location,
-    phone,
-    sure,
-    promptPhone,
-
-    setPhone,
-    setSure,
-
-    handleGetLocation,
-    handleGetPhone,
-    handleGetCalendar,
-    handleSubmit,
-    handleBack,
-
-    isLoading,
-    isUpdating,
-  } = useService(paramsId);
-
-  if (isLoading) {
-    return <Loading/>
-  }
+function OwnerSection({ request }) {
+  const contact = useRequestContactForm(request);
+  const { conversations } = useConversations();
+  const related = conversations.filter((conversation) => conversation.request?.id === request.id);
 
   return (
     <>
-      <Button
-        onClick={handleBack}
-        className="ml-4 cursor-pointer text-[rgb(237,203,206)]"
-      >
-        <ArrowBackIcon sx={{ fontSize: 25 }} />
-      </Button>
-
-      <div className="flex flex-col items-center mx-auto gap-6 min-h-[100vh]">
-        <div className="w-full max-w-xlg text-center h-[100vh] overflow-auto">
-
-          <ServiceContactForm
-            location={location}
-            phone={phone}
-            sure={sure}
-            promptPhone={promptPhone}
-            setPhone={setPhone}
-            setSure={setSure}
-            handleGetLocation={handleGetLocation}
-            handleGetPhone={handleGetPhone}
-            handleGetCalendar={handleGetCalendar}
-            handleSubmit={handleSubmit}
-            isUpdating={isUpdating}
-          />
-
-          <ServiceDetails data={storedData} />
-
-          <ServiceOptions
-            options={storedData?.veriler}
-          />
-
-          <ServiceMessageUsers
-            users={filteredData}
-          />
-
-        </div>
-      </div>
+      {request.status !== "cancelled" && (
+        <RequestContactForm
+          form={contact.form}
+          onSubmit={contact.onSubmit}
+          onDetectLocation={contact.detectLocation}
+          onClearLocation={contact.clearLocation}
+          isLocating={contact.isLocating}
+          isSaving={contact.isSaving}
+        />
+      )}
+      <RequestConversations conversations={related} />
     </>
   );
 }
 
+export default function RequestDetailPage({ id }) {
+  const router = useRouter();
+  const { request, isLoading, isError } = useRequestDetail(id);
+
+  if (isLoading) return <Loading />;
+  if (isError || !request) {
+    return <EmptyState title="Talep bulunamadı" action={<Link href="/ana-sayfa">İşlerime dön</Link>} />;
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => router.back()}
+        aria-label="Geri dön"
+        className="ml-4 p-1 text-[#6B4F6D]"
+      >
+        <ArrowLeft size={25} aria-hidden="true" />
+      </button>
+
+      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 pb-12">
+        <h1 className="text-center text-2xl text-gray-800">{request.title}</h1>
+        {request.isOwner && <OwnerSection request={request} />}
+        <RequestDetails request={request} />
+        <RequestAnswers answers={request.answers} />
+      </div>
+    </>
+  );
+}

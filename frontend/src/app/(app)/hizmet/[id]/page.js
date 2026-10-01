@@ -1,9 +1,21 @@
+import { HydrationBoundary } from "@tanstack/react-query";
+import { notFound } from "next/navigation";
+import RequestDetailPage from "@/features/request/pages/RequestDetailPage";
+import { prefetchState } from "@/shared/api/prefetch";
+import { queryKeys } from "@/shared/api/queryKeys";
 
-import Service from "@/feautures/feed/pages/Service";
+export const metadata = { title: "Talep detayı", robots: { index: false } };
 
-export default async function page({ params })  {
+export default async function Page({ params }) {
   const { id } = await params;
-  return<Service paramsId={id} />
+  const { state, results } = await prefetchState([
+    [queryKeys.request(id), `/requests/${encodeURIComponent(id)}`],
+  ]);
+  if (results[0].notFound) notFound();
 
-};
-
+  return (
+    <HydrationBoundary state={state}>
+      <RequestDetailPage id={id} />
+    </HydrationBoundary>
+  );
+}

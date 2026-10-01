@@ -1,7 +1,7 @@
+import RegisterPage from "@/features/auth/pages/RegisterPage";
 
-import Register from "@/feautures/user/pages/Register"
-export default function page() {
-  return <Register/>
+export const metadata = { title: "Kayıt ol" };
+
+export default function Page() {
+  return <RegisterPage />;
 }
-
-
